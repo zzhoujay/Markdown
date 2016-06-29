@@ -1,6 +1,6 @@
 # MarkDown
 
-> Android平台的Markdown解析器[link]()
+> Android平台的Markdown解析器
 
 ##### 开发中。。。
 
