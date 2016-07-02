@@ -17,9 +17,9 @@ public interface StyleBuilder {
 
     SpannableStringBuilder email(CharSequence charSequence);
 
-    SpannableStringBuilder link(CharSequence title,CharSequence link,CharSequence hint);
+    SpannableStringBuilder link(CharSequence title, String link, String hint);
 
-    SpannableStringBuilder image(CharSequence title,CharSequence url,CharSequence hint);
+    SpannableStringBuilder image(CharSequence title, String url, String hint);
 
     SpannableStringBuilder code(CharSequence charSequence);
 
@@ -39,8 +39,8 @@ public interface StyleBuilder {
 
     SpannableStringBuilder ul(CharSequence charSequence);
 
-    SpannableStringBuilder ol(CharSequence charSequence);
+    SpannableStringBuilder ol(CharSequence charSequence, int index);
 
-    SpannableStringBuilder codeBlock(CharSequence charSequence);
+    SpannableStringBuilder codeBlock(CharSequence charSequence, int flag);
 
 }

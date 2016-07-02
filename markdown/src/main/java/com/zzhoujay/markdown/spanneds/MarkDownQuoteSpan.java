@@ -2,6 +2,7 @@ package com.zzhoujay.markdown.spanneds;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Parcel;
 import android.text.Layout;
 import android.text.style.QuoteSpan;
 
@@ -10,8 +11,20 @@ import android.text.style.QuoteSpan;
  */
 public class MarkDownQuoteSpan extends QuoteSpan {
 
-    private static final int STRIPE_WIDTH = 10;
-    private static final int GAP_WIDTH = 15;
+    private static final int STRIPE_WIDTH = 15;
+    private static final int GAP_WIDTH = 40;
+
+    public MarkDownQuoteSpan() {
+        super();
+    }
+
+    public MarkDownQuoteSpan(int color) {
+        super(color);
+    }
+
+    public MarkDownQuoteSpan(Parcel src) {
+        super(src);
+    }
 
     @Override
     public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout layout) {

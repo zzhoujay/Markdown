@@ -43,8 +43,34 @@ H6
 
 > ## H2
 
-hello`code`world
+hello`code`world`zz`
 
 ```
 this code block
+block 2
+block 3
 ```
+
+
+    code block1
+    code block2
+    code block3
+
+
+[_baidu_](http://www.baidu.com "baidu")
+
+[jd][id]
+
+[id]:http://jd.com "jd"
+
+~~*delete*~~
+
+_this a **italic** line_
+
+**~~start~~**``__fj__``__italic__
+
+**em**hh**asdfasd**
+
+1. 4534
+2. 235
+5. 2342
