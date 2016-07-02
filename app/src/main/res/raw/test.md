@@ -17,6 +17,10 @@
 * ul2
 * ul3
 
+1. hello
+1. word
+1. zz
+
 *Italic*
 
 **Em**
@@ -38,3 +42,9 @@ I am zzhoujay
 H6
 
 > ## H2
+
+hello`code`world
+
+```
+this code block
+```
