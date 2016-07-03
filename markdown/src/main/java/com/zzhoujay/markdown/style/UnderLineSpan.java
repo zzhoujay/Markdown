@@ -1,9 +1,7 @@
-package com.zzhoujay.markdown.spanneds;
+package com.zzhoujay.markdown.style;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
@@ -11,19 +9,18 @@ import android.text.style.ReplacementSpan;
 /**
  * Created by zhou on 16-7-2.
  */
-public class TestSpan extends ReplacementSpan implements LineHeightSpan {
+public class UnderLineSpan extends ReplacementSpan implements LineHeightSpan {
 
+    private int height;
     private int width;
+    private Drawable drawable;
 
-    public TestSpan(int width) {
+    public UnderLineSpan(Drawable drawable, int width, int height) {
+        this.height = height;
         this.width = width;
+        this.drawable = drawable;
     }
 
-    @Override
-    public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v, Paint.FontMetricsInt fm) {
-        fm.descent /= 2;
-        fm.bottom /= 2;
-    }
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
@@ -32,8 +29,15 @@ public class TestSpan extends ReplacementSpan implements LineHeightSpan {
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
-        Drawable drawable = new ColorDrawable(Color.GRAY);
-        drawable.setBounds((int) x, (top + bottom) / 2 - 5, (int) x + width, (bottom + top) / 2);
+        drawable.setBounds((int) x, bottom - height, (int) x + width, bottom);
         drawable.draw(canvas);
+    }
+
+    @Override
+    public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v, Paint.FontMetricsInt fm) {
+        fm.top /= 3;
+        fm.ascent /= 3;
+        fm.bottom /= 3;
+        fm.descent /= 3;
     }
 }

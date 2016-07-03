@@ -1,4 +1,4 @@
-package com.zzhoujay.markdown.spanneds;
+package com.zzhoujay.markdown.style;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,7 +11,7 @@ import android.text.style.ReplacementSpan;
  */
 public class CodeSpan extends ReplacementSpan {
 
-    private static final float radius = 5;
+    private static final float radius = 10;
 
     private Drawable drawable;
     private float padding;

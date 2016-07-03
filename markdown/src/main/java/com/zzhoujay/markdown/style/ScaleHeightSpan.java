@@ -1,4 +1,4 @@
-package com.zzhoujay.markdown.spanneds;
+package com.zzhoujay.markdown.style;
 
 import android.graphics.Paint;
 import android.text.style.LineHeightSpan;

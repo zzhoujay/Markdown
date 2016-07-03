@@ -41,6 +41,10 @@ public interface StyleBuilder {
 
     SpannableStringBuilder ol(CharSequence charSequence, int index);
 
+    SpannableStringBuilder ul2(CharSequence charSequence);
+
+    SpannableStringBuilder ol2(CharSequence charSequence, int index);
+
     SpannableStringBuilder codeBlock(CharSequence charSequence, int flag);
 
 }

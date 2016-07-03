@@ -1,11 +1,10 @@
-package com.zzhoujay.markdown.spanneds;
+package com.zzhoujay.markdown.style;
 
 import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
-import android.os.Parcel;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.BulletSpan;

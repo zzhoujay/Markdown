@@ -1,4 +1,4 @@
-package com.zzhoujay.markdown.spanneds;
+package com.zzhoujay.markdown.style;
 
 import android.os.Parcel;
 import android.text.TextPaint;

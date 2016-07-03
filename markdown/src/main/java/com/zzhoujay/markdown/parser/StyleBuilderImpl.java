@@ -4,22 +4,25 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.widget.TextView;
 
-import com.zzhoujay.markdown.spanneds.CodeBlockSpan;
-import com.zzhoujay.markdown.spanneds.CodeSpan;
-import com.zzhoujay.markdown.spanneds.LinkSpan;
-import com.zzhoujay.markdown.spanneds.MarkDownBulletSpan;
-import com.zzhoujay.markdown.spanneds.MarkDownQuoteSpan;
-import com.zzhoujay.markdown.spanneds.UnderLineSpan;
+import com.zzhoujay.markdown.style.CodeBlockSpan;
+import com.zzhoujay.markdown.style.CodeSpan;
+import com.zzhoujay.markdown.style.LinkSpan;
+import com.zzhoujay.markdown.style.MarkDownBulletSpan;
+import com.zzhoujay.markdown.style.MarkDownInnerBulletSpan;
+import com.zzhoujay.markdown.style.MarkDownQuoteSpan;
+import com.zzhoujay.markdown.style.UnderLineSpan;
 
 /**
  * Created by zhou on 16-6-28.
@@ -39,9 +42,11 @@ public class StyleBuilderImpl implements StyleBuilder {
     private static final float scale_h5 = 1, scale_h6 = 1;
 
     private TextView textView;
+    private Html.ImageGetter imageGetter;
 
-    public StyleBuilderImpl(TextView textView) {
+    public StyleBuilderImpl(TextView textView, Html.ImageGetter imageGetter) {
         this.textView = textView;
+        this.imageGetter = imageGetter;
     }
 
     @Override
@@ -156,6 +161,22 @@ public class StyleBuilderImpl implements StyleBuilder {
     }
 
     @Override
+    public SpannableStringBuilder ul2(CharSequence charSequence) {
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(charSequence);
+        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(40, h1_color, 0);
+        spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannableStringBuilder;
+    }
+
+    @Override
+    public SpannableStringBuilder ol2(CharSequence charSequence, int index) {
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(charSequence);
+        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(40, h1_color, index);
+        spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannableStringBuilder;
+    }
+
+    @Override
     public SpannableStringBuilder codeBlock(CharSequence charSequence, int flag) {
         SpannableStringBuilder builder = new SpannableStringBuilder(charSequence);
         CodeBlockSpan codeBlockSpan = new CodeBlockSpan(getTextViewRealWidth(), code_color, flag);
@@ -175,7 +196,11 @@ public class StyleBuilderImpl implements StyleBuilder {
 
     @Override
     public SpannableStringBuilder image(CharSequence title, String url, String hint) {
-        return new SpannableStringBuilder(String.format("{title:%s,url:%s,hint:%s}", title, url, hint));
+        SpannableStringBuilder builder = new SpannableStringBuilder(title);
+        ImageSpan imageSpan = new ImageSpan(imageGetter.getDrawable(url));
+        builder.setSpan(imageSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return builder;
+//        return new SpannableStringBuilder(String.format("{title:%s,url:%s,hint:%s}", title, url, hint));
     }
 
     protected SpannableStringBuilder h(CharSequence charSequence, float s, int color) {

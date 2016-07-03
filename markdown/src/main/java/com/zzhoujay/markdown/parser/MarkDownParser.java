@@ -6,9 +6,9 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Pair;
 
-import com.zzhoujay.markdown.spanneds.CodeBlockSpan;
-import com.zzhoujay.markdown.spanneds.CodeSpan;
-import com.zzhoujay.markdown.spanneds.ScaleHeightSpan;
+import com.zzhoujay.markdown.style.CodeBlockSpan;
+import com.zzhoujay.markdown.style.CodeSpan;
+import com.zzhoujay.markdown.style.ScaleHeightSpan;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
  */
 public class MarkDownParser {
 
+    private static final Pattern patternH = Pattern.compile("^\\s*#{1,6}\\s+(.*)");
     private static final Pattern patternH1 = Pattern.compile("^\\s*#\\s+(.*)");
     private static final Pattern patternH2 = Pattern.compile("^\\s*#{2}\\s+(.*)");
     private static final Pattern patternH3 = Pattern.compile("^\\s*#{3}\\s+(.*)");
@@ -44,12 +45,12 @@ public class MarkDownParser {
     private static final Pattern patternDelete = Pattern.compile("[^~]*((~{2,4})([^~].*?)\\2)");
     private static final Pattern patternCode = Pattern.compile("[^`]*((`+)([^`].*?)\\2)");
 
-    private static final Pattern patternLink = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\(\\s*(\\S*)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
-    private static final Pattern patternImage = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\(\\s*(\\S*)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
+    private static final Pattern patternLink = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
+    private static final Pattern patternImage = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
     private static final Pattern patternLink2 = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternLink2Link = Pattern.compile("^\\s*\\[\\s*(.*?)\\s*]:\\s*(\\S+)(\\s+(['\"])(.*?)\\4)?\\s*$");
+    private static final Pattern patternLink2Link = Pattern.compile("^\\s*\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
     private static final Pattern patternImage2 = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternImage2Link = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+)(\\s+(['\"])(.*?)\\4)?\\s*$");
+    private static final Pattern patternImage2Link = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
 
     private static final Pattern patternEmail = Pattern.compile(".*?(<(\\S+@\\S+\\.\\S+)>).*?");
     private static final Pattern patternAutoLink = Pattern.compile("https?://\\S+?");
@@ -71,37 +72,43 @@ public class MarkDownParser {
     private HashMap<String, Pair<String, String>> idLinkLinks;
     private HashMap<String, Pair<String, String>> idImageUrl;
 
-    public MarkDownParser(BufferedReader reader, StyleBuilder styleBuilder, int length) {
+    public MarkDownParser(BufferedReader reader, StyleBuilder styleBuilder) {
         this.reader = reader;
-        this.length = length;
         this.styleBuilder = styleBuilder;
         ignoreLine = new HashSet<>();
         idLinkLinks = new HashMap<>();
         idImageUrl = new HashMap<>();
     }
 
-    public MarkDownParser(InputStream inputStream, StyleBuilder styleBuilder, int length) {
-        this(new BufferedReader(new InputStreamReader(inputStream)), styleBuilder, length);
+    public MarkDownParser(InputStream inputStream, StyleBuilder styleBuilder) {
+        this(new BufferedReader(new InputStreamReader(inputStream)), styleBuilder);
     }
 
     public MarkDownParser(String text, StyleBuilder styleBuilder) {
-        this(new BufferedReader(new StringReader(text)), styleBuilder, text.length() + 1);
+        this(new BufferedReader(new StringReader(text)), styleBuilder);
     }
 
     private void findIds() throws IOException {
-        reader.mark(length);
         ignoreLine.clear();
         idLinkLinks.clear();
         idImageUrl.clear();
         String line;
+        StringBuilder stringBuilder = new StringBuilder();
         int lineNum = -1;
         while ((line = reader.readLine()) != null) {
             lineNum++;
-            if (TextUtils.isEmpty(line) || findBlankLine(line) || findIdImage(line) || findIdLink(line)) {
+            if (findIdImage(line) || findIdLink(line)) {
                 ignoreLine.add(lineNum);
+            } else {
+                stringBuilder.append(line).append('\n');
             }
         }
-        reader.reset();
+        if (stringBuilder.length() > 0) {
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+        length = stringBuilder.length();
+        System.out.println(stringBuilder.toString());
+        reader = new BufferedReader(new StringReader(stringBuilder.toString()));
     }
 
     public SpannableStringBuilder parser() throws IOException {
@@ -112,13 +119,12 @@ public class MarkDownParser {
         boolean block2 = false;
         ArrayList<Line> lines = new ArrayList<>();
         while ((l = reader.readLine()) != null) {
-            lineNum++;
-            if (ignoreLine.contains(lineNum)) {
-                continue;
-            }
+//            System.out.println(l);
             Line line = new Line(lineCount++, l);
             lines.add(line);
+            boolean hasHandle = false;
             if (!block2 && findCodeBlock(line)) {
+                removeBlankLine();
                 continue;
             }
 
@@ -126,6 +132,9 @@ public class MarkDownParser {
                 block2 = !block2;
                 lineCount--;
                 lines.remove(lines.size() - 1);
+                if (!block2) {
+                    removeBlankLine();
+                }
                 continue;
             }
 
@@ -135,21 +144,79 @@ public class MarkDownParser {
                 continue;
             }
 
+            boolean isNewLine = isNewLine(line);
+            String currLine = line.getSource();
+            while (!isNewLine) {
+                reader.mark(length);
+                String newLine = reader.readLine();
+                System.out.println(newLine);
+                if (newLine == null) {
+                    break;
+                }
+                while (TextUtils.isEmpty(newLine) || isBlankLine(newLine)) {
+                    reader.mark(length);
+                    newLine = reader.readLine();
+                    isNewLine = true;
+                }
+                if (isNewLine) {
+                    reader.reset();
+                    break;
+                }
+                if (isCodeBlock(newLine) || isCodeBlock2(newLine) || findUl(newLine) || findOl(newLine) || findH(newLine)) {
+                    isNewLine = true;
+                    reader.reset();
+                } else {
+                    int newQuotaCount = findQuota(newLine);
+                    int currQuotaCount = findQuota(currLine);
+                    if (newQuotaCount > 0 && newQuotaCount > currQuotaCount) {
+                        isNewLine = true;
+                        reader.reset();
+                    } else {
+                        String r = newLine;
+                        if (newQuotaCount > 0) {
+                            r = r.replaceFirst("^\\s{0,3}(>\\s+){" + newQuotaCount + "}", "");
+                        }
+//                        if (findUl(r)||findOl(r)) {
+                        if (findUl(r)) {
+                            isNewLine = true;
+                            reader.reset();
+                        } else {
+                            currLine = currLine + ' ' + r;
+                        }
+                    }
+                }
+            }
+            line.setSource(currLine);
 
-//            if(newLine(line)){
-//                String new
-//            }
-
-
-            if (findQuota(line) || findUl(line) || findOl(line) || findH(line)) {
+            if (findQuota(line) || findOl(line) || findUl(line) || findH(line)) {
                 continue;
             }
 
-
-            SpannableStringBuilder builder = new SpannableStringBuilder(l);
-            line.setBuilder(findInline(builder));
+            SpannableStringBuilder builder = new SpannableStringBuilder(line.getSource());
+            line.setBuilder(handleInline(builder));
         }
         return merge(lines);
+    }
+
+    private boolean removeBlankLine() throws IOException {
+        reader.mark(length);
+        String newLine = reader.readLine();
+        System.out.println(newLine);
+        if (newLine == null) {
+            return true;
+        }
+        boolean isNewLine = false;
+        while (TextUtils.isEmpty(newLine) || isBlankLine(newLine)) {
+            reader.mark(length);
+            newLine = reader.readLine();
+            isNewLine = true;
+        }
+        if (isNewLine) {
+            reader.reset();
+            return true;
+        }
+        return false;
+
     }
 
     private SpannableStringBuilder merge(List<Line> lines) {
@@ -239,7 +306,7 @@ public class MarkDownParser {
         return ss;
     }
 
-    private boolean findBlankLine(String line) {
+    private boolean isBlankLine(String line) {
         Matcher matcher = patternBlankLine.matcher(line);
         return matcher.find();
     }
@@ -271,7 +338,7 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H1);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h1(builder));
             return true;
         }
@@ -284,7 +351,7 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H2);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h2(builder));
             return true;
         }
@@ -297,7 +364,7 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H3);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h3(builder));
             return true;
         }
@@ -310,7 +377,7 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H4);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h4(builder));
             return true;
         }
@@ -323,7 +390,7 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H5);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h5(builder));
             return true;
         }
@@ -336,29 +403,29 @@ public class MarkDownParser {
             line.setType(Line.LINE_TYPE_H6);
             String content = matcher.group(1);
             SpannableStringBuilder builder = new SpannableStringBuilder(content);
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.h6(builder));
             return true;
         }
         return false;
     }
 
-    private SpannableStringBuilder findInline(SpannableStringBuilder builder) {
-        findCode(builder);
-        findEmItalic(builder);
-        findEm(builder);
-        findItalic(builder);
-        findDelete(builder);
-        findEmail(builder);
-        findImage(builder);
-        findImage2(builder);
-        findLink(builder);
-        findLink2(builder);
-        findAutoLink(builder);
+    private SpannableStringBuilder handleInline(SpannableStringBuilder builder) {
+        handleCode(builder);
+        handleEmItalic(builder);
+        handleEm(builder);
+        handleItalic(builder);
+        handleDelete(builder);
+        handleEmail(builder);
+        handleImage(builder);
+        handleImage2(builder);
+        handleLink(builder);
+        handleLink2(builder);
+        handleAutoLink(builder);
         return builder;
     }
 
-    private SpannableStringBuilder findEm(SpannableStringBuilder c) {
+    private SpannableStringBuilder handleEm(SpannableStringBuilder c) {
         Matcher matcher = patternEm.matcher(c);
         while (matcher.find()) {
             int start = matcher.start(1);
@@ -369,12 +436,12 @@ public class MarkDownParser {
             SpannableStringBuilder sb = (SpannableStringBuilder) c.subSequence(matcher.start(3), matcher.end(3));
             c.delete(matcher.start(1), matcher.end(1));
             c.insert(matcher.start(1), styleBuilder.em(sb));
-            return findEm(c);
+            return handleEm(c);
         }
         return c;
     }
 
-    private SpannableStringBuilder findItalic(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleItalic(SpannableStringBuilder builder) {
         Matcher matcher = patternItalic.matcher(builder);
         while (matcher.find()) {
             int start = matcher.start(1);
@@ -385,12 +452,12 @@ public class MarkDownParser {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(3), matcher.end(3));
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.italic(sb));
-            return findItalic(builder);
+            return handleItalic(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findEmItalic(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleEmItalic(SpannableStringBuilder builder) {
         Matcher matcher = patternEmItalic.matcher(builder);
         while (matcher.find()) {
             int start = matcher.start(1);
@@ -401,23 +468,23 @@ public class MarkDownParser {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(3), matcher.end(3));
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.emItalic(sb));
-            return findEmItalic(builder);
+            return handleEmItalic(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findCode(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleCode(SpannableStringBuilder builder) {
         Matcher matcher = patternCode.matcher(builder);
         if (matcher.find()) {
             String content = matcher.group(3);
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.code(content));
-            return findCode(builder);
+            return handleCode(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findDelete(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleDelete(SpannableStringBuilder builder) {
         Matcher matcher = patternDelete.matcher(builder);
         while (matcher.find()) {
             int start = matcher.start(1);
@@ -428,23 +495,23 @@ public class MarkDownParser {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(3), matcher.end(3));
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.delete(sb));
-            return findDelete(builder);
+            return handleDelete(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findEmail(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleEmail(SpannableStringBuilder builder) {
         Matcher matcher = patternEmail.matcher(builder);
         if (matcher.find()) {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(2), matcher.end(2));
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.email(sb));
-            return findEmail(builder);
+            return handleEmail(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findAutoLink(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleAutoLink(SpannableStringBuilder builder) {
         Matcher matcher = patternAutoLink.matcher(builder);
         while (matcher.find()) {
             String content = matcher.group();
@@ -454,7 +521,7 @@ public class MarkDownParser {
         return builder;
     }
 
-    private SpannableStringBuilder findLink(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleLink(SpannableStringBuilder builder) {
         Matcher matcher = patternLink.matcher(builder);
         if (matcher.find()) {
             String title = matcher.group(2);
@@ -462,12 +529,12 @@ public class MarkDownParser {
             String hint = matcher.group(6);
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.link(title, link, hint));
-            return findLink(builder);
+            return handleLink(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findLink2(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleLink2(SpannableStringBuilder builder) {
         Matcher matcher = patternLink2.matcher(builder);
         if (matcher.find()) {
             String title = matcher.group(2);
@@ -477,12 +544,12 @@ public class MarkDownParser {
                 builder.delete(matcher.start(1), matcher.end(1));
                 builder.insert(matcher.start(1), styleBuilder.link(title, link.first, link.second));
             }
-            return findLink2(builder);
+            return handleLink2(builder);
         }
         return builder;
     }
 
-    private SpannableStringBuilder findImage2(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleImage2(SpannableStringBuilder builder) {
         Matcher matcher = patternImage2.matcher(builder);
         if (matcher.find()) {
             String title = matcher.group(2);
@@ -492,7 +559,7 @@ public class MarkDownParser {
                 builder.delete(matcher.start(1), matcher.end(1));
                 builder.insert(matcher.start(1), styleBuilder.image(title, image.first, image.second));
             }
-            return findImage2(builder);
+            return handleImage2(builder);
         }
         return builder;
     }
@@ -522,7 +589,7 @@ public class MarkDownParser {
         return false;
     }
 
-    private SpannableStringBuilder findImage(SpannableStringBuilder builder) {
+    private SpannableStringBuilder handleImage(SpannableStringBuilder builder) {
         Matcher matcher = patternImage.matcher(builder);
         if (matcher.find()) {
             String title = matcher.group(2);
@@ -530,14 +597,24 @@ public class MarkDownParser {
             String hint = matcher.group(6);
             builder.delete(matcher.start(1), matcher.end(1));
             builder.insert(matcher.start(1), styleBuilder.image(title, link, hint));
-            return findImage(builder);
+            return handleImage(builder);
         }
         return builder;
     }
 
+    private int findQuota(String line) {
+        Matcher matcher = patternQuota.matcher(line);
+        if (matcher.find()) {
+            return findQuota(matcher.group(1)) + 1;
+        }
+        return 0;
+    }
+
+
     private boolean findQuota(Line line) {
         Matcher matcher = patternQuota.matcher(line.getSource());
         if (matcher.find()) {
+            isOl = false;
             line.setType(Line.LINE_TYPE_QUOTA);
             Line line1 = new Line(line.lineNum, matcher.group(1));
             CharSequence userText;
@@ -548,7 +625,7 @@ public class MarkDownParser {
                 line.setBuilder(styleBuilder.quota(line1.getBuilder()));
                 return true;
             }
-            if (findH(line1)) {
+            if (findUl(line1, true) || findOl(line1, true) || findH(line1)) {
                 userText = line1.getBuilder();
             } else {
                 userText = line1.getSource();
@@ -559,14 +636,24 @@ public class MarkDownParser {
             } else {
                 builder = new SpannableStringBuilder(userText);
             }
-            findInline(builder);
+            handleInline(builder);
             line.setBuilder(styleBuilder.quota(builder));
             return true;
         }
         return false;
     }
 
+    private boolean findUl(String line) {
+        Matcher matcher = patternUl.matcher(line);
+        return matcher.find();
+    }
+
     private boolean findUl(Line line) {
+        return findUl(line, false);
+    }
+
+
+    private boolean findUl(Line line, boolean normal) {
         Matcher matcher = patternUl.matcher(line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_UL);
@@ -583,14 +670,23 @@ public class MarkDownParser {
             } else {
                 builder = new SpannableStringBuilder(userText);
             }
-            findInline(builder);
-            line.setBuilder(styleBuilder.ul(builder));
+            handleInline(builder);
+            line.setBuilder(normal ? styleBuilder.ul2(builder) : styleBuilder.ul(builder));
             return true;
         }
         return false;
     }
 
+    private boolean findOl(String line) {
+        Matcher matcher = patternOl.matcher(line);
+        return matcher.find();
+    }
+
     private boolean findOl(Line line) {
+        return findOl(line, false);
+    }
+
+    private boolean findOl(Line line, boolean normal) {
         Matcher matcher = patternOl.matcher(line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_OL);
@@ -607,20 +703,26 @@ public class MarkDownParser {
             } else {
                 builder = new SpannableStringBuilder(userText);
             }
-            findInline(builder);
+            handleInline(builder);
             int index = 1;
             if (isOl) {
                 index = ++olIndex;
             } else {
                 olIndex = index;
             }
-            line.setBuilder(styleBuilder.ol(builder, index));
+            line.setBuilder(normal ? styleBuilder.ol2(builder, index) : styleBuilder.ol(builder, index));
             isOl = true;
             return true;
         }
         isOl = false;
         return false;
     }
+
+    private boolean findH(String line) {
+        Matcher matcher = patternH.matcher(line);
+        return matcher.find();
+    }
+
 
     private boolean checkInCode(SpannableStringBuilder builder, int start, int end) {
         CodeSpan[] css = builder.getSpans(0, builder.length(), CodeSpan.class);
@@ -634,9 +736,17 @@ public class MarkDownParser {
         return false;
     }
 
-    private boolean newLine(Line line) {
+    private boolean isNewLine(Line line) {
         Matcher matcher = patternEndSpace.matcher(line.getSource());
         return matcher.find();
+    }
+
+    private boolean isCodeBlock(String line) {
+        return patternCodeBlock.matcher(line).find();
+    }
+
+    private boolean isCodeBlock2(String line) {
+        return patternCodeBlock2.matcher(line).find();
     }
 
 }

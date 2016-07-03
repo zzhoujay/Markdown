@@ -1,27 +1,17 @@
 package com.zzhoujay.markdowndemo;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.zzhoujay.markdown.parser.MarkDownParser;
 import com.zzhoujay.markdown.parser.StyleBuilderImpl;
-import com.zzhoujay.markdown.spanneds.TestSpan;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,22 +46,29 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
 
-        InputStream stream = getResources().openRawResource(R.raw.test);
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-        final StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line).append('\n');
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final InputStream stream = getResources().openRawResource(R.raw.hello);
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+//        final StringBuilder sb = new StringBuilder();
+//        String line;
+//        try {
+//            while ((line = bufferedReader.readLine()) != null) {
+//                sb.append(line).append('\n');
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         textView.post(new Runnable() {
             @Override
             public void run() {
-                MarkDownParser markDownParser = new MarkDownParser(sb.toString(), new StyleBuilderImpl(textView));
+                MarkDownParser markDownParser = new MarkDownParser(stream, new StyleBuilderImpl(textView, new Html.ImageGetter() {
+                    @Override
+                    public Drawable getDrawable(String source) {
+                        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
+                        drawable.setBounds(0,0,400,400);
+                        return drawable;
+                    }
+                }));
                 try {
                     textView.setText(markDownParser.parser());
                 } catch (IOException e) {
