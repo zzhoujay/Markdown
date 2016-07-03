@@ -16,16 +16,7 @@
 
 * ul1
 * ul2
-*   * hello
-*   * asdfuh
-      * asdfhuish
-        * asdfjghsf
-          * sdafgasdk
-            * asdkjfkh
-              * # hhhhh
-              * > ggggg
 
-    * asdgjh
 
 1. > hello
 1. word
@@ -100,8 +91,8 @@ zzhoujay
 zz
 # asdfh
 
-> 1. quota 1
-> 2. quota 2
+> > hello
+> gg
 
 
 > > dshfhh
@@ -119,3 +110,12 @@ zz
 * > ul 2
 * > ul 3
 
+
+1. asdf
+* asdf
+
+> hello
+sdfgse * asdfkjbha
+
+
+> 1. hello
