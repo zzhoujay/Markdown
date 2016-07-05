@@ -17,6 +17,7 @@ public class Line {
     public static final int LINE_TYPE_H6 = 9;
     public static final int LINE_TYPE_CODE_BLOCK_2 = 10;
     public static final int LINE_TYPE_CODE_BLOCK_1 = 11;
+    public static final int LINE_TYPE_GAP = 12;
 
     public final int lineNum;
     private String source;

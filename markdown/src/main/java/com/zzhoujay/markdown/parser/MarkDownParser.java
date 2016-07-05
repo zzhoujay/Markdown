@@ -27,13 +27,13 @@ import java.util.regex.Pattern;
  */
 public class MarkDownParser {
 
-    private static final Pattern patternH = Pattern.compile("^\\s*#{1,6}\\s+(.*)");
-    private static final Pattern patternH1 = Pattern.compile("^\\s*#\\s+(.*)");
-    private static final Pattern patternH2 = Pattern.compile("^\\s*#{2}\\s+(.*)");
-    private static final Pattern patternH3 = Pattern.compile("^\\s*#{3}\\s+(.*)");
-    private static final Pattern patternH4 = Pattern.compile("^\\s*#{4}\\s+(.*)");
-    private static final Pattern patternH5 = Pattern.compile("^\\s*#{5}\\s+(.*)");
-    private static final Pattern patternH6 = Pattern.compile("^\\s*#{6}\\s+(.*)");
+    private static final Pattern patternH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH2 = Pattern.compile("^\\s*#{2}\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH3 = Pattern.compile("^\\s*#{3}\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH4 = Pattern.compile("^\\s*#{4}\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH5 = Pattern.compile("^\\s*#{5}\\s+([^#]*)(\\s+#)?");
+    private static final Pattern patternH6 = Pattern.compile("^\\s*#{6}\\s+([^#]*)(\\s+#)?");
 
     private static final Pattern patternQuota = Pattern.compile("^\\s{0,3}>\\s+(.*)");
     private static final Pattern patternUl = Pattern.compile("^\\s{0,3}[*+-]\\s+(.*)");
@@ -62,6 +62,8 @@ public class MarkDownParser {
     private static final Pattern patternCodeBlock2 = Pattern.compile("^\\s*```");
 
     private static final Pattern patternBlankLine = Pattern.compile("^\\s*$");
+
+    private static final Pattern patternGap = Pattern.compile("^\\s*([-*]\\s*){3,}$");
 
     private BufferedReader reader;
     private StyleBuilder styleBuilder;
@@ -107,7 +109,6 @@ public class MarkDownParser {
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         }
         length = stringBuilder.length();
-        System.out.println(stringBuilder.toString());
         reader = new BufferedReader(new StringReader(stringBuilder.toString()));
     }
 
@@ -115,14 +116,11 @@ public class MarkDownParser {
         findIds();
         String l;
         int lineCount = 0;
-        int lineNum = -1;
         boolean block2 = false;
         ArrayList<Line> lines = new ArrayList<>();
         while ((l = reader.readLine()) != null) {
-//            System.out.println(l);
             Line line = new Line(lineCount++, l);
             lines.add(line);
-            boolean hasHandle = false;
             if (!block2 && findCodeBlock(line)) {
                 removeBlankLine();
                 continue;
@@ -140,16 +138,18 @@ public class MarkDownParser {
 
             if (block2) {
                 line.setType(Line.LINE_TYPE_CODE_BLOCK_2);
-                line.setBuilder(styleBuilder.codeBlock(l, CodeBlockSpan.FLAG_CENTER));
+                line.setBuilder(l);
                 continue;
             }
 
-            boolean isNewLine = isNewLine(line);
             String currLine = line.getSource();
+            boolean isNewLine = isNewLine(currLine);
+            if (isNewLine) {
+                removeBlankLine();
+            }
             while (!isNewLine) {
                 reader.mark(length);
                 String newLine = reader.readLine();
-                System.out.println(newLine);
                 if (newLine == null) {
                     break;
                 }
@@ -162,7 +162,7 @@ public class MarkDownParser {
                     reader.reset();
                     break;
                 }
-                if (isCodeBlock(newLine) || isCodeBlock2(newLine) || findUl(newLine) || findOl(newLine) || findH(newLine)) {
+                if (isCodeBlock(newLine) || isCodeBlock2(newLine) || isGap(newLine) || findUl(newLine) || findOl(newLine) || findH(newLine)) {
                     isNewLine = true;
                     reader.reset();
                 } else {
@@ -188,7 +188,7 @@ public class MarkDownParser {
             }
             line.setSource(currLine);
 
-            if (findQuota(line) || findOl(line) || findUl(line) || findH(line)) {
+            if (findGap(line) || findQuota(line) || findOl(line) || findUl(line) || findH(line)) {
                 continue;
             }
 
@@ -201,7 +201,6 @@ public class MarkDownParser {
     private boolean removeBlankLine() throws IOException {
         reader.mark(length);
         String newLine = reader.readLine();
-        System.out.println(newLine);
         if (newLine == null) {
             return true;
         }
@@ -222,23 +221,37 @@ public class MarkDownParser {
     private SpannableStringBuilder merge(List<Line> lines) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
         LineQueue queue = new LineQueue(lines);
+        List<CharSequence> codeBlock = new ArrayList<>();
         do {
             Line line = queue.get();
             Line prev = queue.prevLine();
             Line next = queue.nextLine();
             switch (line.getType()) {
                 case Line.LINE_TYPE_CODE_BLOCK_2:
-                    if (prev == null || prev.getType() != Line.LINE_TYPE_CODE_BLOCK_2) {
-                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_START));
-                        builder.append('\n');
+                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
                     }
-                    break;
+                    codeBlock.add(line.getBuilder());
+//                    if (prev == null || prev.getType() != Line.LINE_TYPE_CODE_BLOCK_2) {
+//                        codeBlock.add(line.getBuilder());
+//                    }
+                    continue;
                 case Line.LINE_TYPE_CODE_BLOCK_1:
-                    if (prev == null || prev.getType() != Line.LINE_TYPE_CODE_BLOCK_1) {
-                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_START));
-                        builder.append('\n');
+                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
                     }
-                    break;
+                    codeBlock.add(line.getBuilder());
+                    continue;
+                default:
+                    if (prev != null && (prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1 || prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2)) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
+                    }
             }
             builder.append(line.getBuilder()).append('\n');
             switch (line.getType()) {
@@ -257,31 +270,32 @@ public class MarkDownParser {
                     }
                     break;
                 case Line.LINE_TYPE_H3:
-                    builder.append(styleBuilder.h3(" "));
+//                    builder.append(styleBuilder.h3(" "));
                     builder.append('\n');
                     break;
                 case Line.LINE_TYPE_H4:
-                    builder.append(styleBuilder.h4(" "));
+//                    builder.append(styleBuilder.h4(" "));
                     builder.append('\n');
                     break;
-                case Line.LINE_TYPE_CODE_BLOCK_1:
-                    if (next == null || next.getType() != Line.LINE_TYPE_CODE_BLOCK_1) {
-                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_END));
-                        builder.append('\n');
-                        builder.append('\n');
-                    }
-                    break;
-                case Line.LINE_TYPE_CODE_BLOCK_2:
-                    if (next == null || next.getType() != Line.LINE_TYPE_CODE_BLOCK_2) {
-                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_END));
-                        builder.append('\n');
-                        builder.append('\n');
-                    }
-                    break;
+//                case Line.LINE_TYPE_CODE_BLOCK_1:
+//                    if (next == null || next.getType() != Line.LINE_TYPE_CODE_BLOCK_1) {
+//                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_END));
+//                        builder.append('\n');
+//                        builder.append('\n');
+//                    }
+//                    break;
+//                case Line.LINE_TYPE_CODE_BLOCK_2:
+//                    if (next == null || next.getType() != Line.LINE_TYPE_CODE_BLOCK_2) {
+//                        builder.append(styleBuilder.codeBlock(" ", CodeBlockSpan.FLAG_END));
+//                        builder.append('\n');
+//                        builder.append('\n');
+//                    }
+//                    break;
                 case Line.LINE_TYPE_H5:
                 case Line.LINE_TYPE_H6:
                 case Line.LINE_TYPE_H1:
                 case Line.LINE_TYPE_H2:
+                case Line.LINE_TYPE_GAP:
                 case Line.LINE_NORMAL:
                     builder.append('\n');
                     break;
@@ -321,8 +335,19 @@ public class MarkDownParser {
         if (matcher.find()) {
             String content = matcher.group(2);
             line.setType(Line.LINE_TYPE_CODE_BLOCK_1);
-            line.setCodeBlock(true);
-            line.setBuilder(styleBuilder.codeBlock(content, CodeBlockSpan.FLAG_CENTER));
+            line.setBuilder(content);
+//            line.setCodeBlock(true);
+//            line.setBuilder(styleBuilder.codeBlock(content, CodeBlockSpan.FLAG_CENTER));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean findGap(Line line) {
+        Matcher matcher = patternGap.matcher(line.getSource());
+        if (matcher.matches()) {
+            line.setType(Line.LINE_TYPE_GAP);
+            line.setBuilder(styleBuilder.gap());
             return true;
         }
         return false;
@@ -736,9 +761,9 @@ public class MarkDownParser {
         return false;
     }
 
-    private boolean isNewLine(Line line) {
-        Matcher matcher = patternEndSpace.matcher(line.getSource());
-        return matcher.find();
+    private boolean isNewLine(String line) {
+        Matcher matcher = patternEndSpace.matcher(line);
+        return matcher.find() || findH(line);
     }
 
     private boolean isCodeBlock(String line) {
@@ -749,4 +774,7 @@ public class MarkDownParser {
         return patternCodeBlock2.matcher(line).find();
     }
 
+    private boolean isGap(String line) {
+        return patternGap.matcher(line).find();
+    }
 }

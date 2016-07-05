@@ -23,6 +23,7 @@
 compile 'com.zzhoujay.richtext:richtext:1.1.5'
 ```
 
+---
 
 ### 使用方式
 
@@ -46,7 +47,7 @@ RichText
 ```
 
 ### 自定义修复宽高
-
+hello
 ```
 RichText.from(text).fix(new ImageFixCallback() {
                 @Override

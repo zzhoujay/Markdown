@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BulletSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -177,10 +178,12 @@ public class StyleBuilderImpl implements StyleBuilder {
     }
 
     @Override
-    public SpannableStringBuilder codeBlock(CharSequence charSequence, int flag) {
-        SpannableStringBuilder builder = new SpannableStringBuilder(charSequence);
-        CodeBlockSpan codeBlockSpan = new CodeBlockSpan(getTextViewRealWidth(), code_color, flag);
+    public SpannableStringBuilder codeBlock(CharSequence... charSequence) {
+        SpannableStringBuilder builder = new SpannableStringBuilder("$");
+        AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan(14, true);
+        CodeBlockSpan codeBlockSpan = new CodeBlockSpan(getTextViewRealWidth(), code_color, charSequence);
         builder.setSpan(codeBlockSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan(sizeSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
 //        return new SpannableStringBuilder(String.format("codeBlock:{%s}", charSequence));
     }
@@ -237,5 +240,14 @@ public class StyleBuilderImpl implements StyleBuilder {
             return textView.getWidth() - textView.getPaddingRight() - textView.getPaddingLeft();
         }
         return 0;
+    }
+
+    @Override
+    public SpannableStringBuilder gap() {
+        SpannableStringBuilder builder = new SpannableStringBuilder("$");
+        Drawable underLine = new ColorDrawable(Color.parseColor("#eeeeee"));
+        UnderLineSpan underLineSpan = new UnderLineSpan(underLine, getTextViewRealWidth(), 10);
+        builder.setSpan(underLineSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return builder;
     }
 }
