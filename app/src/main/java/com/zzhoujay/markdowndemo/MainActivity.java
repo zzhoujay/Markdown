@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }));
                 try {
-                    textView.setText(markDownParser.parser());
+                    textView.setText(markDownParser.get());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

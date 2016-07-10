@@ -19,12 +19,16 @@ public class Line {
     public static final int LINE_TYPE_CODE_BLOCK_1 = 11;
     public static final int LINE_TYPE_GAP = 12;
 
-    public final int lineNum;
+    private final int lineNum;
     private String source;
     private boolean codeBlock;
     private CharSequence builder;
     private int type;
     private int typeCount;
+
+    Line() {
+        lineNum = 0;
+    }
 
     public Line(int lineNum, String source) {
         this.lineNum = lineNum;
@@ -72,5 +76,9 @@ public class Line {
 
     public void setTypeCount(int typeCount) {
         this.typeCount = typeCount;
+    }
+
+    public int getLineNum() {
+        return lineNum;
     }
 }

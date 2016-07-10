@@ -1,5 +1,6 @@
 package com.zzhoujay.markdown.parser;
 
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -18,6 +19,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +69,7 @@ public class MarkDownParser {
 
     private BufferedReader reader;
     private StyleBuilder styleBuilder;
+    private TagHandler tagHandler;
     private int length;
     private int olIndex;
     private boolean isOl;
@@ -80,6 +83,7 @@ public class MarkDownParser {
         ignoreLine = new HashSet<>();
         idLinkLinks = new HashMap<>();
         idImageUrl = new HashMap<>();
+        tagHandler = new TagHandlerImpl(styleBuilder);
     }
 
     public MarkDownParser(InputStream inputStream, StyleBuilder styleBuilder) {
@@ -110,6 +114,197 @@ public class MarkDownParser {
         }
         length = stringBuilder.length();
         reader = new BufferedReader(new StringReader(stringBuilder.toString()));
+    }
+
+    public Spannable get() throws IOException {
+        LineQueue queue = collect();
+        return merge(queue);
+    }
+
+    private LineQueue collect() throws IOException {
+        String line;
+        int lineNum = 0;
+        List<Line> lines = new LinkedList<>();
+        while ((line = reader.readLine()) != null) {
+            if (!(tagHandler.imageId(line) || tagHandler.linkId(line))) {
+                lineNum++;
+                Line l = new Line(lineNum, line);
+                lines.add(l);
+            }
+        }
+        return new LineQueue(lines);
+    }
+
+    private int findQuotaCount(Line line) {
+        Matcher matcher = patternQuota.matcher(line.getSource());
+        if (matcher.find()) {
+            return findQuota(matcher.group(1)) + 1;
+        }
+        return 0;
+    }
+
+    private Spannable merge(LineQueue queue) {
+        boolean block2 = false;
+        do {
+            Line curr = queue.get();
+            Line prev = queue.prevLine();
+            Line next = queue.nextLine();
+
+            if (!block2 && tagHandler.codeBlock(curr)) {
+                removeBlankLine(queue);
+                continue;
+            }
+
+            if (tagHandler.codeBlock2(curr)) {
+                block2 = !block2;
+                queue.remove();
+                if (!block2) {
+                    removeBlankLine(queue);
+                }
+                continue;
+            }
+
+            if (block2) {
+                curr.setType(Line.LINE_TYPE_CODE_BLOCK_2);
+                curr.setBuilder(curr.getSource());
+                continue;
+            }
+
+            boolean isNewLine = tagHandler.find(Tag.NEW_LINE, curr);
+            if (isNewLine) {
+                removeBlankLine(queue);
+            }
+            while (!isNewLine) {
+                queue.push();
+                queue.next();
+                if (next == null || removeBlankLine(queue)) {
+                    break;
+                }
+                queue.pop();
+
+                if (tagHandler.find(Tag.CODE_BLOCK_1, next) || tagHandler.find(Tag.CODE_BLOCK_2, next) ||
+                        tagHandler.find(Tag.GAP, next) || tagHandler.find(Tag.UL, next) ||
+                        tagHandler.find(Tag.OL, next) || tagHandler.find(Tag.H, next)) {
+                    break;
+                }
+
+                int nextQuotaCount = findQuotaCount(next);
+                int currQuotaCount = findQuotaCount(curr);
+                if (nextQuotaCount > 0 && nextQuotaCount > currQuotaCount) {
+                    break;
+                } else {
+                    String r = next.getSource();
+                    if (nextQuotaCount > 0) {
+                        r = r.replaceFirst("^\\s{0,3}(>\\s+){" + nextQuotaCount + "}", "");
+                    }
+//                        if (findUl(r)||findOl(r)) {
+                    if (findUl(r)) {
+                        break;
+                    } else {
+                        curr.setSource(curr.getSource() + ' ' + r);
+                        queue.removeNext();
+                    }
+                }
+
+            }
+            if (tagHandler.gap(curr) || tagHandler.quota(curr) || tagHandler.ol(curr) || tagHandler.ul(curr) ||
+                    tagHandler.h(curr)) {
+                continue;
+            }
+            curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
+            tagHandler.inline(curr);
+
+        } while (queue.next());
+        return mergeSpannable(queue);
+    }
+
+    private Spannable mergeSpannable(LineQueue queue) {
+        queue.seek(0);
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        List<CharSequence> codeBlock = new ArrayList<>();
+        do {
+            Line line = queue.get();
+            Line prev = queue.prevLine();
+            Line next = queue.nextLine();
+            switch (line.getType()) {
+                case Line.LINE_TYPE_CODE_BLOCK_2:
+                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
+                    }
+                    codeBlock.add(line.getBuilder());
+                    continue;
+                case Line.LINE_TYPE_CODE_BLOCK_1:
+                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
+                    }
+                    codeBlock.add(line.getBuilder());
+                    continue;
+                default:
+                    if (prev != null && (prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1 || prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2)) {
+                        CharSequence[] cs = new CharSequence[codeBlock.size()];
+                        builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
+                        codeBlock.clear();
+                    }
+            }
+            builder.append(line.getBuilder()).append('\n');
+            switch (line.getType()) {
+                case Line.LINE_TYPE_QUOTA:
+                    if (next != null && next.getType() == Line.LINE_TYPE_QUOTA) {
+                        int num = line.getTypeCount();
+                        SpannableStringBuilder ssb = new SpannableStringBuilder(" ");
+                        while (num > 0) {
+                            ssb = styleBuilder.quota(ssb);
+                            num--;
+                        }
+                        ssb.append('\n');
+                        builder.append(ssb);
+                    } else {
+                        builder.append('\n');
+                    }
+                    break;
+                case Line.LINE_TYPE_H3:
+                    builder.append('\n');
+                    break;
+                case Line.LINE_TYPE_H4:
+                    builder.append('\n');
+                    break;
+                case Line.LINE_TYPE_H5:
+                case Line.LINE_TYPE_H6:
+                case Line.LINE_TYPE_H1:
+                case Line.LINE_TYPE_H2:
+                case Line.LINE_TYPE_GAP:
+                case Line.LINE_NORMAL:
+                    builder.append('\n');
+                    break;
+                case Line.LINE_TYPE_UL:
+                    if (next != null && next.getType() == Line.LINE_TYPE_UL)
+                        builder.append(listMarginBottom());
+                    builder.append('\n');
+                    break;
+                case Line.LINE_TYPE_OL:
+                    if (next != null && next.getType() == Line.LINE_TYPE_OL) {
+                        builder.append(listMarginBottom());
+                    }
+                    builder.append('\n');
+            }
+        } while (queue.next());
+        return builder;
+    }
+
+    private boolean removeBlankLine(LineQueue queue) {
+        boolean flag = false;
+        do {
+            if (!tagHandler.find(Tag.BLANK, queue.get())) {
+                queue.prev();
+                break;
+            }
+            flag = true;
+        } while (queue.remove() != null);
+        return flag;
     }
 
     public SpannableStringBuilder parser() throws IOException {
@@ -215,8 +410,8 @@ public class MarkDownParser {
             return true;
         }
         return false;
-
     }
+
 
     private SpannableStringBuilder merge(List<Line> lines) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
@@ -641,7 +836,7 @@ public class MarkDownParser {
         if (matcher.find()) {
             isOl = false;
             line.setType(Line.LINE_TYPE_QUOTA);
-            Line line1 = new Line(line.lineNum, matcher.group(1));
+            Line line1 = new Line(line.getLineNum(), matcher.group(1));
             CharSequence userText;
             line.setTypeCount(1);
             if (findQuota(line1)) {
@@ -682,7 +877,7 @@ public class MarkDownParser {
         Matcher matcher = patternUl.matcher(line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_UL);
-            Line line1 = new Line(line.lineNum, matcher.group(1));
+            Line line1 = new Line(line.getLineNum(), matcher.group(1));
             CharSequence userText;
             if (findH(line1)) {
                 userText = line1.getBuilder();
@@ -715,7 +910,7 @@ public class MarkDownParser {
         Matcher matcher = patternOl.matcher(line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_OL);
-            Line line1 = new Line(line.lineNum, matcher.group(1));
+            Line line1 = new Line(line.getLineNum(), matcher.group(1));
             CharSequence userText;
             if (findH(line1)) {
                 userText = line1.getBuilder();
