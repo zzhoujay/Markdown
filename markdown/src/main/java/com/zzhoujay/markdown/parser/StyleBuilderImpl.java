@@ -185,7 +185,7 @@ public class StyleBuilderImpl implements StyleBuilder {
         builder.setSpan(codeBlockSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         builder.setSpan(sizeSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
-//        return new SpannableStringBuilder(String.format("codeBlock:{%s}", charSequence));
+//        return new SpannableStringBuilder(String.format("codeBlock1:{%s}", charSequence));
     }
 
     @Override

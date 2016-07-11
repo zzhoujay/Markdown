@@ -296,7 +296,13 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean gap(Line line) {
-        return patternGap.matcher(line.getSource()).find();
+        Matcher matcher = patternGap.matcher(line.getSource());
+        if (matcher.matches()) {
+            line.setType(Line.LINE_TYPE_GAP);
+            line.setBuilder(styleBuilder.gap());
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -510,7 +516,7 @@ public class TagHandlerImpl implements TagHandler {
     }
 
     @Override
-    public boolean codeBlock(Line line) {
+    public boolean codeBlock1(Line line) {
         Matcher matcher = patternCodeBlock.matcher(line.getSource());
         if (matcher.find()) {
             String content = matcher.group(2);

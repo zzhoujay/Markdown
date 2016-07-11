@@ -9,49 +9,46 @@ import java.util.Stack;
 public class LineQueue extends Line {
 
     private List<Line> lines;
-    private int point;
-    private Line currLine;
+    private int position;
     private Stack<Integer> status;
 
     public LineQueue(List<Line> lines) {
         this.lines = lines;
-        point = 0;
-        currLine = get();
+        position = 0;
         status = new Stack<>();
     }
 
     public boolean end() {
-        return point == lines.size() - 1;
+        return position == lines.size() - 1;
     }
 
     public boolean start() {
-        return point == 0;
+        return position == 0;
     }
 
     public Line nextLine() {
         if (!end()) {
-            return lines.get(point + 1);
+            return lines.get(position + 1);
         }
         return null;
     }
 
     public Line prevLine() {
         if (!start()) {
-            return lines.get(point - 1);
+            return lines.get(position - 1);
         }
         return null;
     }
 
     public Line get() {
-        return lines.get(point);
+        return lines.get(position);
     }
 
     public boolean next() {
         if (end()) {
             return false;
         }
-        point++;
-        currLine = get();
+        position++;
         return true;
     }
 
@@ -59,85 +56,81 @@ public class LineQueue extends Line {
         if (start()) {
             return false;
         }
-        point--;
-        currLine = get();
+        position--;
         return true;
     }
 
     public void seek(int position) {
-        point = position;
-        currLine = get();
+        this.position = position;
     }
 
     public void push() {
-        status.push(point);
+        status.push(position);
     }
 
     public void pop() {
-        point = status.pop();
-        currLine = get();
+        position = status.pop();
     }
 
     public void add(Line line) {
-        lines.add(point + 1, line);
+        lines.add(position + 1, line);
     }
 
     public Line remove() {
-        return remove(point);
+        return remove(position);
     }
 
     public Line removeNext() {
-        return remove(point + 1);
+        return remove(position + 1);
     }
 
     public Line removePrev() {
-        return remove(point - 1);
+        return remove(position - 1);
     }
 
     public Line remove(int position) {
         Line l = lines.remove(position);
-        currLine = get();
         return l;
     }
 
     @Override
     public CharSequence getBuilder() {
-        return currLine.getBuilder();
+        return get().getBuilder();
     }
 
     @Override
     public void setBuilder(CharSequence builder) {
-        currLine.setBuilder(builder);
+        get().setBuilder(builder);
     }
 
     @Override
     public String getSource() {
-        return currLine.getSource();
+        return get().getSource();
     }
 
     @Override
     public void setSource(String source) {
-        currLine.setSource(source);
+        get().setSource(source);
     }
 
     @Override
     public boolean isCodeBlock() {
-        return currLine.isCodeBlock();
+        return get().isCodeBlock();
     }
 
     @Override
     public void setCodeBlock(boolean codeBlock) {
-        currLine.setCodeBlock(codeBlock);
+        get().setCodeBlock(codeBlock);
     }
 
     @Override
     public int getType() {
-        return currLine.getType();
+        return get().getType();
     }
 
     @Override
     public void setType(int type) {
-        currLine.setType(type);
+        get().setType(type);
     }
 
     @Override
@@ -155,7 +148,4 @@ public class LineQueue extends Line {
         return super.getLineNum();
     }
 
-    public int position() {
-        return point;
-    }
 }

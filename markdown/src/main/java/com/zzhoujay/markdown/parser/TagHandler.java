@@ -55,7 +55,7 @@ public interface TagHandler extends TagFinder {
 
     boolean inline(Line line);
 
-    boolean codeBlock(Line line);
+    boolean codeBlock1(Line line);
 
     boolean codeBlock2(Line line);
 
