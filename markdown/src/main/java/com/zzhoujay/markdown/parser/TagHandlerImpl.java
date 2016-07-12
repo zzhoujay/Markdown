@@ -125,7 +125,7 @@ public class TagHandlerImpl implements TagHandler {
             SpannableStringBuilder builder = SpannableStringBuilder.valueOf(matcher.group(1));
             line.setBuilder(builder);
             inline(line);
-            line.setBuilder(styleBuilder.h1(line.getBuilder()));
+            line.setBuilder(styleBuilder.h2(line.getBuilder()));
 
             return true;
         }
@@ -140,7 +140,7 @@ public class TagHandlerImpl implements TagHandler {
             SpannableStringBuilder builder = SpannableStringBuilder.valueOf(matcher.group(1));
             line.setBuilder(builder);
             inline(line);
-            line.setBuilder(styleBuilder.h1(line.getBuilder()));
+            line.setBuilder(styleBuilder.h3(line.getBuilder()));
 
             return true;
         }
@@ -155,7 +155,7 @@ public class TagHandlerImpl implements TagHandler {
             SpannableStringBuilder builder = SpannableStringBuilder.valueOf(matcher.group(1));
             line.setBuilder(builder);
             inline(line);
-            line.setBuilder(styleBuilder.h1(line.getBuilder()));
+            line.setBuilder(styleBuilder.h4(line.getBuilder()));
 
             return true;
         }
@@ -170,7 +170,7 @@ public class TagHandlerImpl implements TagHandler {
             SpannableStringBuilder builder = SpannableStringBuilder.valueOf(matcher.group(1));
             line.setBuilder(builder);
             inline(line);
-            line.setBuilder(styleBuilder.h1(line.getBuilder()));
+            line.setBuilder(styleBuilder.h5(line.getBuilder()));
 
             return true;
         }
@@ -185,7 +185,7 @@ public class TagHandlerImpl implements TagHandler {
             SpannableStringBuilder builder = SpannableStringBuilder.valueOf(matcher.group(1));
             line.setBuilder(builder);
             inline(line);
-            line.setBuilder(styleBuilder.h1(line.getBuilder()));
+            line.setBuilder(styleBuilder.h6(line.getBuilder()));
 
             return true;
         }

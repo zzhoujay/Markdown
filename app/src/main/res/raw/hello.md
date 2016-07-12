@@ -47,7 +47,7 @@ RichText
 ```
 
 ### 自定义修复宽高
-hello
+`hello`
 ```
 RichText.from(text).fix(new ImageFixCallback() {
                 @Override

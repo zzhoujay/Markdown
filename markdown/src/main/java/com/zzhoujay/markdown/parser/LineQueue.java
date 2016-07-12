@@ -18,12 +18,25 @@ public class LineQueue extends Line {
         status = new Stack<>();
     }
 
+    public LineQueue(LineQueue queue, int position) {
+        this(queue.lines);
+        this.position = position;
+    }
+
+    public LineQueue offset(int offset) {
+        int p = offset + position;
+        if (p < 0 || p >= lines.size()) {
+            return null;
+        }
+        return new LineQueue(this, p);
+    }
+
     public boolean end() {
         return position == lines.size() - 1;
     }
 
     public boolean start() {
-        return position == 0;
+        return position <= 0;
     }
 
     public Line nextLine() {
@@ -77,21 +90,25 @@ public class LineQueue extends Line {
     }
 
     public Line remove() {
-        return remove(position);
+        Line t = lines.remove(position);
+        if (position >= lines.size()) {
+            position = lines.size() - 1;
+        }
+        return t;
     }
 
     public Line removeNext() {
-        return remove(position + 1);
+        return lines.remove(position + 1);
     }
 
     public Line removePrev() {
-        return remove(position - 1);
+        Line t = lines.remove(position);
+        if (position <=0) {
+            position = 0;
+        }
+        return t;
     }
 
-    public Line remove(int position) {
-        Line l = lines.remove(position);
-        return l;
-    }
 
     @Override
     public CharSequence getBuilder() {
@@ -148,4 +165,11 @@ public class LineQueue extends Line {
         return super.getLineNum();
     }
 
+    @Override
+    public String toString() {
+        return "LineQueue{" +
+                "lines=" + lines +
+                ", position=" + position +
+                '}';
+    }
 }

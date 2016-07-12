@@ -1,12 +1,7 @@
-# hello
+### gradle中引用的方法
 
-> gg
+    compile 'com.zzhoujay.richtext:richtext:1.1.5'
 
-* hello
-* gg
-* zz
-* cc
+---
 
-    hello code
-
-_by zzhoujay_
+### 使用方式

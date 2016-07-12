@@ -38,6 +38,11 @@ public class Line {
         type = LINE_NORMAL;
     }
 
+    @Override
+    public String toString() {
+        return source;
+    }
+
     public CharSequence getBuilder() {
         return builder;
     }
