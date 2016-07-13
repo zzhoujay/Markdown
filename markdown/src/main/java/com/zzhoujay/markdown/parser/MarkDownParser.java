@@ -4,10 +4,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.util.Pair;
 
-import com.zzhoujay.markdown.style.CodeSpan;
 import com.zzhoujay.markdown.style.ScaleHeightSpan;
 
 import java.io.BufferedReader;
@@ -16,8 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -115,14 +110,14 @@ public class MarkDownParser {
             Line next = queue.nextLine();
             Line curr = queue.get();
 
-            if (!block2 && tagHandler.codeBlock1(curr)) {
+            if (!block2 && tagHandler.codeBlock1(queue)) {
                 if (next != null) {
                     removeBlankLine(queue);
                 }
                 continue;
             }
 
-            if (tagHandler.codeBlock2(curr)) {
+            if (tagHandler.codeBlock2(queue)) {
                 block2 = !block2;
                 queue.remove();
                 if (!block2) {
@@ -174,12 +169,12 @@ public class MarkDownParser {
                 }
 
             }
-            if (tagHandler.gap(curr) || tagHandler.quota(curr) || tagHandler.ol(curr) || tagHandler.ul(curr) ||
-                    tagHandler.h(curr)) {
+            if (tagHandler.gap(queue) || tagHandler.quota(queue) || tagHandler.ol(queue) || tagHandler.ul(queue) ||
+                    tagHandler.h(queue)) {
                 continue;
             }
             curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
-            tagHandler.inline(curr);
+            tagHandler.inline(queue);
         } while (!need_next || queue.next());
         return mergeSpannable(queue);
     }
@@ -230,7 +225,7 @@ public class MarkDownParser {
             switch (curr.getType()) {
                 case Line.LINE_TYPE_QUOTA:
                     if (next != null && next.getType() == Line.LINE_TYPE_QUOTA) {
-                        int num = curr.getTypeCount();
+                        int num = curr.getCount();
                         SpannableStringBuilder ssb = new SpannableStringBuilder(" ");
                         while (num > 0) {
                             ssb = styleBuilder.quota(ssb);

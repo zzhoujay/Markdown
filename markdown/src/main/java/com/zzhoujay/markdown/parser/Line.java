@@ -21,10 +21,10 @@ public class Line {
 
     private final int lineNum;
     private String source;
-    private boolean codeBlock;
     private CharSequence builder;
     private int type;
-    private int typeCount;
+    private int count;
+    private int attr;
 
     Line() {
         lineNum = 0;
@@ -33,8 +33,7 @@ public class Line {
     public Line(int lineNum, String source) {
         this.lineNum = lineNum;
         this.source = source;
-        codeBlock = false;
-        typeCount = 1;
+        count = 1;
         type = LINE_NORMAL;
     }
 
@@ -59,14 +58,6 @@ public class Line {
         this.source = source;
     }
 
-    public boolean isCodeBlock() {
-        return codeBlock;
-    }
-
-    public void setCodeBlock(boolean codeBlock) {
-        this.codeBlock = codeBlock;
-    }
-
     public int getType() {
         return type;
     }
@@ -75,15 +66,23 @@ public class Line {
         this.type = type;
     }
 
-    public int getTypeCount() {
-        return typeCount;
+    public int getCount() {
+        return count;
     }
 
-    public void setTypeCount(int typeCount) {
-        this.typeCount = typeCount;
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public int getLineNum() {
         return lineNum;
+    }
+
+    public int getAttr() {
+        return attr;
+    }
+
+    public void setAttr(int attr) {
+        this.attr = attr;
     }
 }

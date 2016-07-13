@@ -131,16 +131,6 @@ public class LineQueue extends Line {
     }
 
     @Override
-    public boolean isCodeBlock() {
-        return get().isCodeBlock();
-    }
-
-    @Override
-    public void setCodeBlock(boolean codeBlock) {
-        get().setCodeBlock(codeBlock);
-    }
-
-    @Override
     public int getType() {
         return get().getType();
     }
@@ -151,18 +141,28 @@ public class LineQueue extends Line {
     }
 
     @Override
-    public int getTypeCount() {
-        return super.getTypeCount();
+    public int getCount() {
+        return super.getCount();
     }
 
     @Override
-    public void setTypeCount(int typeCount) {
-        super.setTypeCount(typeCount);
+    public void setCount(int typeCount) {
+        super.setCount(typeCount);
     }
 
     @Override
     public int getLineNum() {
         return super.getLineNum();
+    }
+
+    @Override
+    public int getAttr() {
+        return get().getAttr();
+    }
+
+    @Override
+    public void setAttr(int attr) {
+        get().setAttr(attr);
     }
 
     @Override

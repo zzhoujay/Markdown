@@ -88,8 +88,6 @@ public class TagHandlerImpl implements TagHandler {
     private StyleBuilder styleBuilder;
     private HashMap<String, Pair<String, String>> idLinkLinks;
     private HashMap<String, Pair<String, String>> idImageUrl;
-    private boolean isOl;
-    private int olIndex;
 
 
     public TagHandlerImpl(StyleBuilder styleBuilder) {
@@ -196,14 +194,13 @@ public class TagHandlerImpl implements TagHandler {
     public boolean quota(Line line) {
         Matcher matcher = patternQuota.matcher(line.getSource());
         if (matcher.find()) {
-            isOl = false;
             line.setType(Line.LINE_TYPE_QUOTA);
             Line line1 = new Line(line.getLineNum(), matcher.group(1));
             CharSequence userText;
-            line.setTypeCount(1);
+            line.setCount(1);
             if (quota(line1)) {
                 if (line1.getType() == Line.LINE_TYPE_QUOTA)
-                    line.setTypeCount(line1.getTypeCount() + 1);
+                    line.setCount(line1.getCount() + 1);
                 line.setBuilder(styleBuilder.quota(line1.getBuilder()));
                 return true;
             }
@@ -281,16 +278,19 @@ public class TagHandlerImpl implements TagHandler {
             line.setBuilder(builder);
             inline(line);
             int index = 1;
-            if (isOl) {
-                index = ++olIndex;
-            } else {
-                olIndex = index;
+            if(line instanceof LineQueue){
+                LineQueue queue = (LineQueue) line;
+                if (!queue.start()) {
+                    Line prev = queue.prevLine();
+                    if (prev != null && prev.getType() == Line.LINE_TYPE_OL) {
+                        index = prev.getAttr() + 1;
+                    }
+                }
             }
+            line.setAttr(index);
             line.setBuilder(normal ? styleBuilder.ol2(line.getBuilder(), index) : styleBuilder.ol(line.getBuilder(), index));
-            isOl = true;
             return true;
         }
-        isOl = false;
         return false;
     }
 
