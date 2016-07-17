@@ -87,37 +87,41 @@ public class MarkDownParser {
 
     private LineQueue collect() throws IOException {
         String line;
-        int lineNum = 0;
         List<Line> lines = new LinkedList<>();
         while ((line = reader.readLine()) != null) {
             if (!(tagHandler.imageId(line) || tagHandler.linkId(line))) {
-                lineNum++;
-                Line l = new Line(lineNum, line);
+                Line l = new Line(line);
                 lines.add(l);
             }
         }
-        LineQueue queue = new LineQueue(lines);
-        return queue;
+        return new LineQueue(lines);
     }
 
     private Spannable merge(LineQueue queue) {
         boolean block2 = false;
         removeBlankLine(queue);
         boolean need_next;
+        boolean notBlock;
         do {
+            notBlock = false;
             need_next = true;
             Line prev = queue.prevLine();
             Line next = queue.nextLine();
             Line curr = queue.get();
 
-            if (!block2 && tagHandler.codeBlock1(queue)) {
+            if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)
+                    && (tagHandler.find(Tag.UL, curr) || tagHandler.find(Tag.OL, curr))) {
+                notBlock = true;
+            }
+
+            if (!notBlock && !block2 && tagHandler.codeBlock1(queue)) {
                 if (next != null) {
                     removeBlankLine(queue);
                 }
                 continue;
             }
 
-            if (tagHandler.codeBlock2(queue)) {
+            if (!notBlock && tagHandler.codeBlock2(queue)) {
                 block2 = !block2;
                 queue.remove();
                 if (!block2) {
@@ -131,6 +135,27 @@ public class MarkDownParser {
             if (block2) {
                 curr.setType(Line.LINE_TYPE_CODE_BLOCK_2);
                 curr.setBuilder(curr.getSource());
+                continue;
+            }
+
+
+            if (tagHandler.find(Tag.H1_2, next)) {
+                curr.setType(Line.LINE_TYPE_H1);
+                curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
+                tagHandler.inline(curr);
+                curr.setBuilder(styleBuilder.h1(curr.getBuilder()));
+                queue.removeNext();
+                removeBlankLine(queue);
+                continue;
+            }
+
+            if (tagHandler.find(Tag.H2_2, next)) {
+                curr.setType(Line.LINE_TYPE_H2);
+                curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
+                tagHandler.inline(curr);
+                curr.setBuilder(styleBuilder.h2(curr.getBuilder()));
+                queue.removeNext();
+                removeBlankLine(queue);
                 continue;
             }
 
@@ -159,7 +184,7 @@ public class MarkDownParser {
                         r = r.replaceFirst("^\\s{0,3}(>\\s+){" + nextQuotaCount + "}", "");
                     }
 //                        if (findUl(r)||findOl(r)) {
-                    if (tagHandler.find(Tag.UL, r)) {
+                    if (tagHandler.find(Tag.UL, r) || tagHandler.find(Tag.OL, r) || tagHandler.find(Tag.H, r)) {
                         break;
                     } else {
                         curr.setSource(curr.getSource() + ' ' + r);

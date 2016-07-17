@@ -19,19 +19,18 @@ public class Line {
     public static final int LINE_TYPE_CODE_BLOCK_1 = 11;
     public static final int LINE_TYPE_GAP = 12;
 
-    private final int lineNum;
     private String source;
     private CharSequence builder;
     private int type;
     private int count;
     private int attr;
+    private Line parent;
+    private Line child;
 
     Line() {
-        lineNum = 0;
     }
 
-    public Line(int lineNum, String source) {
-        this.lineNum = lineNum;
+    public Line(String source) {
         this.source = source;
         count = 1;
         type = LINE_NORMAL;
@@ -74,15 +73,27 @@ public class Line {
         this.count = count;
     }
 
-    public int getLineNum() {
-        return lineNum;
-    }
-
     public int getAttr() {
         return attr;
     }
 
     public void setAttr(int attr) {
         this.attr = attr;
+    }
+
+    public Line getParent() {
+        return parent;
+    }
+
+    public void setParent(Line parent) {
+        this.parent = parent;
+    }
+
+    public Line getChild() {
+        return child;
+    }
+
+    public void setChild(Line child) {
+        this.child = child;
     }
 }

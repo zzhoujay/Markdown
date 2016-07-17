@@ -147,33 +147,33 @@ public class StyleBuilderImpl implements StyleBuilder {
     }
 
     @Override
-    public SpannableStringBuilder ul(CharSequence charSequence) {
+    public SpannableStringBuilder ul(CharSequence charSequence,int level) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        BulletSpan bulletSpan = new MarkDownBulletSpan(40, h1_color, 0);
+        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, 0);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
 
     @Override
-    public SpannableStringBuilder ol(CharSequence charSequence, int index) {
+    public SpannableStringBuilder ol(CharSequence charSequence,int level, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        BulletSpan bulletSpan = new MarkDownBulletSpan(40, h1_color, index, textView);
+        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, index, textView);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
 
     @Override
-    public SpannableStringBuilder ul2(CharSequence charSequence) {
+    public SpannableStringBuilder ul2(CharSequence charSequence,int level) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(40, h1_color, 0);
+        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(level, h1_color, 0);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
 
     @Override
-    public SpannableStringBuilder ol2(CharSequence charSequence, int index) {
+    public SpannableStringBuilder ol2(CharSequence charSequence,int level, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(40, h1_color, index);
+        MarkDownInnerBulletSpan bulletSpan = new MarkDownInnerBulletSpan(level, h1_color, index);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }

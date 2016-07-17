@@ -1,10 +1,10 @@
 package com.zzhoujay.markdown;
 
+import com.zzhoujay.markdown.util.NumberKit;
+
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.
@@ -39,11 +39,12 @@ public class ExampleUnitTest {
 
     @Test
     public void test() throws IOException {
-        Pattern pattern = Pattern.compile("[( {4})\\t](.*)");
-        String test = "# hello";
-        Matcher matcher = pattern.matcher(test);
-        if (matcher.find()){
-
-        }
+//        System.out.println(NumberKit.toRomanNumerals(999));
+//        for(int i=0;i<100;i++){
+//            System.out.println(NumberKit.toABC(i));
+//        }
+        System.out.println(NumberKit.toABC(0));
+        System.out.println((int) 'a');
+        System.out.println(Integer.toString(24, 26));
     }
 }

@@ -35,5 +35,7 @@ public class Tag {
     public static final int BLANK = 25;
     public static final int NEW_LINE = 26;
     public static final int GAP = 27;
+    public static final int H1_2 = 28;
+    public static final int H2_2 = 29;
 
 }

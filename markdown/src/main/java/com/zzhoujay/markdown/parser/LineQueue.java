@@ -103,10 +103,14 @@ public class LineQueue extends Line {
 
     public Line removePrev() {
         Line t = lines.remove(position);
-        if (position <=0) {
+        if (position <= 0) {
             position = 0;
         }
         return t;
+    }
+
+    public void insert(Line line) {
+        lines.add(position + 1, line);
     }
 
 
@@ -151,11 +155,6 @@ public class LineQueue extends Line {
     }
 
     @Override
-    public int getLineNum() {
-        return super.getLineNum();
-    }
-
-    @Override
     public int getAttr() {
         return get().getAttr();
     }
@@ -163,6 +162,26 @@ public class LineQueue extends Line {
     @Override
     public void setAttr(int attr) {
         get().setAttr(attr);
+    }
+
+    @Override
+    public void setParent(Line parent) {
+        get().setParent(parent);
+    }
+
+    @Override
+    public Line getParent() {
+        return get().getParent();
+    }
+
+    @Override
+    public Line getChild() {
+        return get().getChild();
+    }
+
+    @Override
+    public void setChild(Line child) {
+        get().setChild(child);
     }
 
     @Override

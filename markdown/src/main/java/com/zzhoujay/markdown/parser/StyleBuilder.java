@@ -37,13 +37,13 @@ public interface StyleBuilder {
 
     SpannableStringBuilder quota(CharSequence charSequence);
 
-    SpannableStringBuilder ul(CharSequence charSequence);
+    SpannableStringBuilder ul(CharSequence charSequence,int level);
 
-    SpannableStringBuilder ol(CharSequence charSequence, int index);
+    SpannableStringBuilder ol(CharSequence charSequence,int level, int index);
 
-    SpannableStringBuilder ul2(CharSequence charSequence);
+    SpannableStringBuilder ul2(CharSequence charSequence,int level);
 
-    SpannableStringBuilder ol2(CharSequence charSequence, int index);
+    SpannableStringBuilder ol2(CharSequence charSequence,int level, int index);
 
     SpannableStringBuilder codeBlock(CharSequence... charSequence);
 

@@ -7,6 +7,8 @@ import android.graphics.Path;
 import android.os.Build;
 import android.text.style.ReplacementSpan;
 
+import com.zzhoujay.markdown.util.NumberKit;
+
 /**
  * Created by zhou on 16-7-3.
  */
@@ -14,20 +16,29 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan {
 
     private static final int BULLET_RADIUS = 6;
     private static final int tab = 40;
+    private static final int gap = 40;
 
-    private final int gap;
     private final int mColor;
     private final String index;
     private int margin;
+    private int level;
 
-    private static Path sBulletPath = null;
+    private static Path circleBulletPath = null;
+    private static Path rectBulletPath = null;
 
 
-    public MarkDownInnerBulletSpan(int gap, int mColor, int index) {
-        this.gap = gap;
+
+    public MarkDownInnerBulletSpan(int level, int mColor, int index) {
         this.mColor = mColor;
+        this.level = level;
         if (index > 0) {
-            this.index = index + ".";
+            if (level == 1) {
+                this.index = NumberKit.toRomanNumerals(index) + '.';
+            } else if (level >= 2) {
+                this.index = NumberKit.toABC(index - 1) + '.';
+            } else {
+                this.index = index + ".";
+            }
         } else {
             this.index = null;
         }
@@ -36,9 +47,9 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan {
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
         if (index == null) {
-            margin = tab + gap + BULLET_RADIUS * 2;
+            margin = tab + (gap + BULLET_RADIUS * 2) * (level + 1);
         } else {
-            margin = (int) (tab + gap + paint.measureText(index));
+            margin = (int) (tab + (gap + paint.measureText(index)) * (level + 1));
         }
         return (int) (margin + paint.measureText(text, start, end));
     }
@@ -54,21 +65,36 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan {
         } else {
             Paint.Style style = paint.getStyle();
 
-            paint.setStyle(Paint.Style.FILL);
+            if (level == 1) {
+                paint.setStyle(Paint.Style.STROKE);
+            } else {
+                paint.setStyle(Paint.Style.FILL);
+            }
 
             if (canvas.isHardwareAccelerated()) {
-                if (sBulletPath == null) {
-                    sBulletPath = new Path();
-                    // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                    sBulletPath.addCircle(0.0f, 0.0f, 1.2f * BULLET_RADIUS, Path.Direction.CW);
+                Path path;
+                if (level >= 2) {
+                    if (rectBulletPath == null) {
+                        rectBulletPath = new Path();
+                        float w = 1.2f * BULLET_RADIUS;
+                        rectBulletPath.addRect(-w, -w, w, w, Path.Direction.CW);
+                    }
+                    path = rectBulletPath;
+                } else {
+                    if (circleBulletPath == null) {
+                        circleBulletPath = new Path();
+                        // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
+                        circleBulletPath.addCircle(0.0f, 0.0f, 1.2f * BULLET_RADIUS, Path.Direction.CW);
+                    }
+                    path = circleBulletPath;
                 }
 
                 canvas.save();
-                canvas.translate(x + 2 * BULLET_RADIUS + tab, (top + bottom) / 2.0f);
-                canvas.drawPath(sBulletPath, paint);
+                canvas.translate(x + margin-gap, (top + bottom) / 2.0f);
+                canvas.drawPath(path, paint);
                 canvas.restore();
             } else {
-                canvas.drawCircle(x + 2 * BULLET_RADIUS + tab, (top + bottom) / 2.0f, BULLET_RADIUS, paint);
+                canvas.drawCircle(x + margin-gap, (top + bottom) / 2.0f, BULLET_RADIUS, paint);
             }
             paint.setStyle(style);
         }
