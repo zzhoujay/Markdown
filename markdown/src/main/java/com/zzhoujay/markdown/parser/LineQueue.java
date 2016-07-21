@@ -1,194 +1,109 @@
 package com.zzhoujay.markdown.parser;
 
-import java.util.List;
-import java.util.Stack;
-
 /**
  * Created by zhou on 16-7-2.
  */
-public class LineQueue extends Line {
+public class LineQueue {
 
-    private List<Line> lines;
-    private int position;
-    private Stack<Integer> status;
+    private Line root;
+    private Line curr;
+    private Line last;
 
-    public LineQueue(List<Line> lines) {
-        this.lines = lines;
-        position = 0;
-        status = new Stack<>();
-    }
-
-    public LineQueue(LineQueue queue, int position) {
-        this(queue.lines);
-        this.position = position;
-    }
-
-    public LineQueue offset(int offset) {
-        int p = offset + position;
-        if (p < 0 || p >= lines.size()) {
-            return null;
+    public LineQueue(Line root) {
+        this.root = root;
+        curr = root;
+        last = root;
+        while (last.next != null) {
+            last = last.next;
         }
-        return new LineQueue(this, p);
     }
 
-    public boolean end() {
-        return position == lines.size() - 1;
-    }
-
-    public boolean start() {
-        return position <= 0;
+    private LineQueue(LineQueue queue, Line curr) {
+        this.root = queue.root;
+        this.last = queue.last;
+        this.curr = curr;
     }
 
     public Line nextLine() {
-        if (!end()) {
-            return lines.get(position + 1);
-        }
-        return null;
+        return curr.next;
     }
 
     public Line prevLine() {
-        if (!start()) {
-            return lines.get(position - 1);
-        }
-        return null;
+        return curr.prev;
     }
 
-    public Line get() {
-        return lines.get(position);
+    public Line currLine() {
+        return curr;
     }
 
     public boolean next() {
-        if (end()) {
-            return false;
-        }
-        position++;
-        return true;
+        return (curr = curr.next) != null;
     }
 
     public boolean prev() {
-        if (start()) {
-            return false;
-        }
-        position--;
-        return true;
+        return (curr = curr.prev) != null;
     }
 
-    public void seek(int position) {
-        this.position = position;
+    public boolean end() {
+        return curr.next == null;
     }
 
-    public void push() {
-        status.push(position);
+    public boolean start() {
+        return curr == root;
     }
 
-    public void pop() {
-        position = status.pop();
-    }
-
-    public void add(Line line) {
-        lines.add(position + 1, line);
-    }
-
-    public Line remove() {
-        Line t = lines.remove(position);
-        if (position >= lines.size()) {
-            position = lines.size() - 1;
-        }
-        return t;
-    }
-
-    public Line removeNext() {
-        return lines.remove(position + 1);
-    }
-
-    public Line removePrev() {
-        Line t = lines.remove(position);
-        if (position <= 0) {
-            position = 0;
-        }
-        return t;
+    public void append(Line line) {
+        last.add(line);
+        last = line;
     }
 
     public void insert(Line line) {
-        lines.add(position + 1, line);
+        if (curr == root) {
+            append(line);
+        } else {
+            curr.addNext(line);
+        }
     }
 
-
-    @Override
-    public CharSequence getBuilder() {
-        return get().getBuilder();
+    public Line remove() {
+        Line tmp;
+        if (curr == last) {
+            tmp = last.prev;
+        } else {
+            tmp = curr.next;
+        }
+        curr.remove();
+        Line r = curr;
+        curr = tmp;
+        return r;
     }
 
-    @Override
-    public void setBuilder(CharSequence builder) {
-        get().setBuilder(builder);
+    public void removeNext() {
+        if (curr.next == last) {
+            curr.removeNext();
+            last = curr;
+        } else {
+            curr.removeNext();
+        }
     }
 
-    @Override
-    public String getSource() {
-        return get().getSource();
+    public LineQueue copy() {
+        return new LineQueue(this, curr);
     }
 
-    @Override
-    public void setSource(String source) {
-        get().setSource(source);
+    public LineQueue copyNext() {
+        if (end()) {
+            return null;
+        }
+        return new LineQueue(this, curr.next);
     }
 
-    @Override
-    public int getType() {
-        return get().getType();
+    public Line get() {
+        return curr;
     }
 
-    @Override
-    public void setType(int type) {
-        get().setType(type);
+    public void reset() {
+        curr = root;
     }
 
-    @Override
-    public int getCount() {
-        return super.getCount();
-    }
-
-    @Override
-    public void setCount(int typeCount) {
-        super.setCount(typeCount);
-    }
-
-    @Override
-    public int getAttr() {
-        return get().getAttr();
-    }
-
-    @Override
-    public void setAttr(int attr) {
-        get().setAttr(attr);
-    }
-
-    @Override
-    public void setParent(Line parent) {
-        get().setParent(parent);
-    }
-
-    @Override
-    public Line getParent() {
-        return get().getParent();
-    }
-
-    @Override
-    public Line getChild() {
-        return get().getChild();
-    }
-
-    @Override
-    public void setChild(Line child) {
-        get().setChild(child);
-    }
-
-    @Override
-    public String toString() {
-        return "LineQueue{" +
-                "lines=" + lines +
-                ", position=" + position +
-                '}';
-    }
 }

@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,14 +86,20 @@ public class MarkDownParser {
 
     private LineQueue collect() throws IOException {
         String line;
-        List<Line> lines = new LinkedList<>();
+        Line root = null;
+        LineQueue queue = null;
         while ((line = reader.readLine()) != null) {
             if (!(tagHandler.imageId(line) || tagHandler.linkId(line))) {
                 Line l = new Line(line);
-                lines.add(l);
+                if (root == null) {
+                    root = l;
+                    queue = new LineQueue(root);
+                } else {
+                    queue.append(l);
+                }
             }
         }
-        return new LineQueue(lines);
+        return queue;
     }
 
     private Spannable merge(LineQueue queue) {
@@ -105,81 +110,80 @@ public class MarkDownParser {
         do {
             notBlock = false;
             need_next = true;
-            Line prev = queue.prevLine();
             Line next = queue.nextLine();
-            Line curr = queue.get();
+            Line curr = queue.currLine();
 
-            if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)
-                    && (tagHandler.find(Tag.UL, curr) || tagHandler.find(Tag.OL, curr))) {
+            if (queue.prevLine() != null && (queue.prevLine().type == Line.LINE_TYPE_OL || queue.prevLine().type == Line.LINE_TYPE_UL)
+                    && (tagHandler.find(Tag.UL, queue.currLine()) || tagHandler.find(Tag.OL, queue.currLine()))) {
                 notBlock = true;
             }
 
-            if (!notBlock && !block2 && tagHandler.codeBlock1(queue)) {
+            if (!notBlock && !block2 && tagHandler.codeBlock1(queue.currLine())) {
                 if (next != null) {
                     removeBlankLine(queue);
                 }
                 continue;
             }
 
-            if (!notBlock && tagHandler.codeBlock2(queue)) {
+            if (!notBlock && tagHandler.codeBlock2(queue.currLine())) {
                 block2 = !block2;
                 queue.remove();
                 if (!block2) {
-                    removeBlankLine(queue, 0);
+                    removeBlankLine(queue, true);
                 }
                 need_next = false;
-                System.out.println(queue);
+                System.out.println(curr);
                 continue;
             }
 
             if (block2) {
-                curr.setType(Line.LINE_TYPE_CODE_BLOCK_2);
-                curr.setBuilder(curr.getSource());
+                queue.currLine().type = Line.LINE_TYPE_CODE_BLOCK_2;
+                queue.currLine().style = queue.currLine().source;
                 continue;
             }
 
 
             if (tagHandler.find(Tag.H1_2, next)) {
-                curr.setType(Line.LINE_TYPE_H1);
-                curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
+                curr.type = Line.LINE_TYPE_H1;
+                curr.style = SpannableStringBuilder.valueOf(curr.source);
                 tagHandler.inline(curr);
-                curr.setBuilder(styleBuilder.h1(curr.getBuilder()));
-                queue.removeNext();
+                curr.style = styleBuilder.h1(curr.style);
+                curr.removeNext();
                 removeBlankLine(queue);
                 continue;
             }
 
             if (tagHandler.find(Tag.H2_2, next)) {
-                curr.setType(Line.LINE_TYPE_H2);
-                curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
+                curr.type = Line.LINE_TYPE_H2;
+                curr.style = SpannableStringBuilder.valueOf(curr.source);
                 tagHandler.inline(curr);
-                curr.setBuilder(styleBuilder.h2(curr.getBuilder()));
-                queue.removeNext();
+                curr.style = styleBuilder.h2(curr.style);
+                curr.removeNext();
                 removeBlankLine(queue);
                 continue;
             }
 
-            boolean isNewLine = tagHandler.find(Tag.NEW_LINE, curr) || tagHandler.find(Tag.GAP, curr);
+            boolean isNewLine = tagHandler.find(Tag.NEW_LINE, queue.currLine()) || tagHandler.find(Tag.GAP, queue.currLine());
             if (isNewLine) {
                 removeBlankLine(queue);
             }
             while (!isNewLine) {
-                if (next == null || removeBlankLine(queue)) {
+                if (queue.nextLine() == null || removeBlankLine(queue)) {
                     break;
                 }
 
-                if (tagHandler.find(Tag.CODE_BLOCK_1, next) || tagHandler.find(Tag.CODE_BLOCK_2, next) ||
-                        tagHandler.find(Tag.GAP, next) || tagHandler.find(Tag.UL, next) ||
-                        tagHandler.find(Tag.OL, next) || tagHandler.find(Tag.H, next)) {
+                if (tagHandler.find(Tag.CODE_BLOCK_1, queue.nextLine()) || tagHandler.find(Tag.CODE_BLOCK_2, queue.nextLine()) ||
+                        tagHandler.find(Tag.GAP, queue.nextLine()) || tagHandler.find(Tag.UL, queue.nextLine()) ||
+                        tagHandler.find(Tag.OL, queue.nextLine()) || tagHandler.find(Tag.H, queue.nextLine())) {
                     break;
                 }
 
-                int nextQuotaCount = findQuotaCount(next);
-                int currQuotaCount = findQuotaCount(curr);
+                int nextQuotaCount = findQuotaCount(queue.nextLine());
+                int currQuotaCount = findQuotaCount(queue.currLine());
                 if (nextQuotaCount > 0 && nextQuotaCount > currQuotaCount) {
                     break;
                 } else {
-                    String r = next.getSource();
+                    String r = next.source;
                     if (nextQuotaCount > 0) {
                         r = r.replaceFirst("^\\s{0,3}(>\\s+){" + nextQuotaCount + "}", "");
                     }
@@ -187,39 +191,38 @@ public class MarkDownParser {
                     if (tagHandler.find(Tag.UL, r) || tagHandler.find(Tag.OL, r) || tagHandler.find(Tag.H, r)) {
                         break;
                     } else {
-                        curr.setSource(curr.getSource() + ' ' + r);
+                        queue.currLine().source = curr.source + ' ' + r;
                         queue.removeNext();
-                        next = queue.nextLine();
                     }
                 }
 
             }
-            if (tagHandler.gap(queue) || tagHandler.quota(queue) || tagHandler.ol(queue) || tagHandler.ul(queue) ||
-                    tagHandler.h(queue)) {
+            if (tagHandler.gap(queue.currLine()) || tagHandler.quota(queue.currLine()) || tagHandler.ol(queue.currLine()) || tagHandler.ul(queue.currLine()) ||
+                    tagHandler.h(curr)) {
                 continue;
             }
-            curr.setBuilder(SpannableStringBuilder.valueOf(curr.getSource()));
-            tagHandler.inline(queue);
+            curr.style = SpannableStringBuilder.valueOf(curr.source);
+            tagHandler.inline(curr);
         } while (!need_next || queue.next());
         return mergeSpannable(queue);
     }
 
     private Spannable mergeSpannable(LineQueue queue) {
-        queue.seek(0);
+        queue.reset();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         List<CharSequence> codeBlock = new ArrayList<>();
         do {
             Line curr = queue.get();
             Line prev = queue.prevLine();
             Line next = queue.nextLine();
-            switch (curr.getType()) {
+            switch (curr.type) {
                 case Line.LINE_TYPE_CODE_BLOCK_2:
-                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1) {
+                    if (prev != null && prev.type == Line.LINE_TYPE_CODE_BLOCK_1) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
                         codeBlock.clear();
                     }
-                    codeBlock.add(curr.getBuilder());
+                    codeBlock.add(curr.style);
                     if (next == null) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
@@ -227,12 +230,12 @@ public class MarkDownParser {
                     }
                     continue;
                 case Line.LINE_TYPE_CODE_BLOCK_1:
-                    if (prev != null && prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2) {
+                    if (prev != null && prev.type == Line.LINE_TYPE_CODE_BLOCK_2) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
                         codeBlock.clear();
                     }
-                    codeBlock.add(curr.getBuilder());
+                    codeBlock.add(curr.style);
                     if (next == null) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
@@ -240,17 +243,17 @@ public class MarkDownParser {
                     }
                     continue;
                 default:
-                    if (prev != null && (prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1 || prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2)) {
+                    if (prev != null && (prev.type == Line.LINE_TYPE_CODE_BLOCK_1 || prev.type == Line.LINE_TYPE_CODE_BLOCK_2)) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
                         codeBlock.clear();
                     }
             }
-            builder.append(curr.getBuilder()).append('\n');
-            switch (curr.getType()) {
+            builder.append(curr.style).append('\n');
+            switch (curr.type) {
                 case Line.LINE_TYPE_QUOTA:
-                    if (next != null && next.getType() == Line.LINE_TYPE_QUOTA) {
-                        int num = curr.getCount();
+                    if (next != null && next.type == Line.LINE_TYPE_QUOTA) {
+                        int num = curr.count;
                         SpannableStringBuilder ssb = new SpannableStringBuilder(" ");
                         while (num > 0) {
                             ssb = styleBuilder.quota(ssb);
@@ -277,12 +280,12 @@ public class MarkDownParser {
                     builder.append('\n');
                     break;
                 case Line.LINE_TYPE_UL:
-                    if (next != null && next.getType() == Line.LINE_TYPE_UL)
+                    if (next != null && next.type == Line.LINE_TYPE_UL)
                         builder.append(listMarginBottom());
                     builder.append('\n');
                     break;
                 case Line.LINE_TYPE_OL:
-                    if (next != null && next.getType() == Line.LINE_TYPE_OL) {
+                    if (next != null && next.type == Line.LINE_TYPE_OL) {
                         builder.append(listMarginBottom());
                     }
                     builder.append('\n');
@@ -292,12 +295,16 @@ public class MarkDownParser {
     }
 
     private boolean removeBlankLine(LineQueue queue) {
-        return removeBlankLine(queue, 1);
+        return removeBlankLine(queue, false);
     }
 
-    private boolean removeBlankLine(LineQueue queue, int offset) {
+    private boolean removeBlankLine(LineQueue queue, boolean curr) {
         boolean flag = false;
-        queue = queue.offset(offset);
+        if (curr) {
+            queue = queue.copy();
+        } else {
+            queue = queue.copyNext();
+        }
         if (queue == null) {
             return false;
         }
@@ -328,7 +335,7 @@ public class MarkDownParser {
 
 
     private int findQuotaCount(Line line) {
-        Matcher matcher = patternQuota.matcher(line.getSource());
+        Matcher matcher = patternQuota.matcher(line.source);
         if (matcher.find()) {
             return findQuota(matcher.group(1)) + 1;
         }

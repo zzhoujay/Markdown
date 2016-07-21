@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
 //        Pattern pattern = Pattern.compile("#\\s+(.*)");
 //        String test = "# hello";
 //        SpannableStringBuilder builder = new SpannableStringBuilder(test);
-//        builder.setSpan(new ForegroundColorSpan(Color.RED), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        Matcher matcher = pattern.matcher(builder);
+//        style.setSpan(new ForegroundColorSpan(Color.RED), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        Matcher matcher = pattern.matcher(style);
 //        if (matcher.find()) {
 //            Log.i("find", matcher.group(1));
 //            System.out.println(matcher.group(1));
