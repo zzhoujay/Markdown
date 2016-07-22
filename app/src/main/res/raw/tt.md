@@ -2,8 +2,6 @@
 
 > quota
 
-* hello
-  * gg
-    * zz
+1. 2. 3. 4. hello
 
 _by zzhoujay_

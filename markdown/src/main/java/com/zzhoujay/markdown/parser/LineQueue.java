@@ -3,7 +3,7 @@ package com.zzhoujay.markdown.parser;
 /**
  * Created by zhou on 16-7-2.
  */
-public class LineQueue {
+public class LineQueue extends Line{
 
     private Line root;
     private Line curr;
@@ -13,8 +13,8 @@ public class LineQueue {
         this.root = root;
         curr = root;
         last = root;
-        while (last.next != null) {
-            last = last.next;
+        while (last.nextLine() != null) {
+            last = last.nextLine();
         }
     }
 
@@ -25,27 +25,34 @@ public class LineQueue {
     }
 
     public Line nextLine() {
-        return curr.next;
+        return curr.nextLine();
     }
 
     public Line prevLine() {
-        return curr.prev;
+        return curr.prevLine();
     }
 
+	@Override
+	public Line get()
+	{
+		return curr;
+	}
+	
+
     public Line currLine() {
-        return curr;
+        return get();
     }
 
     public boolean next() {
-        return (curr = curr.next) != null;
+        return (curr = curr.nextLine()) != null;
     }
 
     public boolean prev() {
-        return (curr = curr.prev) != null;
+        return (curr = curr.prevLine()) != null;
     }
 
     public boolean end() {
-        return curr.next == null;
+        return curr.nextLine() == null;
     }
 
     public boolean start() {
@@ -58,19 +65,19 @@ public class LineQueue {
     }
 
     public void insert(Line line) {
-        if (curr == root) {
+        if (curr == last) {
             append(line);
         } else {
             curr.addNext(line);
         }
     }
 
-    public Line remove() {
+    public Line removeCurrLine() {
         Line tmp;
         if (curr == last) {
-            tmp = last.prev;
+            tmp = last.prevLine();
         } else {
-            tmp = curr.next;
+            tmp = curr.nextLine();
         }
         curr.remove();
         Line r = curr;
@@ -78,8 +85,8 @@ public class LineQueue {
         return r;
     }
 
-    public void removeNext() {
-        if (curr.next == last) {
+    public void removeNextLine() {
+        if (curr.nextLine() == last) {
             curr.removeNext();
             last = curr;
         } else {
@@ -95,15 +102,163 @@ public class LineQueue {
         if (end()) {
             return null;
         }
-        return new LineQueue(this, curr.next);
+        return new LineQueue(this, curr.nextLine());
     }
 
-    public Line get() {
-        return curr;
-    }
+    
 
     public void reset() {
         curr = root;
     }
 
+	@Override
+	public Line createChild(String src)
+	{
+		return curr.createChild(src);
+	}
+
+	@Override
+	public Line addNext(Line line)
+	{
+		return curr.addNext(line);
+	}
+
+	@Override
+	public Line addPrev(Line line)
+	{
+		return curr.addPrev(line);
+	}
+
+	@Override
+	public Line add(Line line)
+	{
+		return curr.add(line);
+	}
+	
+	
+
+	@Override
+	public void remove()
+	{
+		curr.remove();
+	}
+
+	@Override
+	public void addChild(Line line)
+	{
+		curr.addChild(line);
+	}
+
+	@Override
+	public Line removeNext()
+	{
+		return curr.removeNext();
+	}
+
+	@Override
+	public Line removePrev()
+	{
+		return curr.removePrev();
+	}
+
+	@Override
+	public void attachToParent(Line line)
+	{
+		curr.attachToParent(line);
+	}
+
+	@Override
+	public void unAttachFromParent()
+	{
+		curr.unAttachFromParent();
+	}
+
+	@Override
+	public Line copyToNext()
+	{
+		return curr.copyToNext();
+	}
+
+	@Override
+	public Line copyToPrev()
+	{
+		return curr.copyToPrev();
+	}
+
+	@Override
+	public Line childLine()
+	{
+		return curr.childLine();
+	}
+
+	@Override
+	public Line parentLine()
+	{
+		return curr.parentLine();
+	}
+
+	@Override
+	public void setType(int type)
+	{
+		curr.setType(type);
+	}
+
+	@Override
+	public void setCount(int count)
+	{
+		curr.setCount(count);
+	}
+
+	@Override
+	public void setAttr(int attr)
+	{
+		curr.setAttr(attr);
+	}
+
+	@Override
+	public void setSource(String source)
+	{
+		curr.setSource(source);
+	}
+
+	@Override
+	public void setStyle(CharSequence style)
+	{
+		curr.setStyle(style);
+	}
+
+	@Override
+	public int getAttr()
+	{
+		return curr.getAttr();
+	}
+
+	@Override
+	public CharSequence getStyle()
+	{
+		return curr.getStyle();
+	}
+
+	@Override
+	public int getType()
+	{
+		return curr.getType();
+	}
+
+	@Override
+	public int getCount()
+	{
+		return curr.getCount();
+	}
+
+	@Override
+	public String getSource()
+	{
+		return curr.getSource();
+	}
+	
+	
+
+	
+	
 }
