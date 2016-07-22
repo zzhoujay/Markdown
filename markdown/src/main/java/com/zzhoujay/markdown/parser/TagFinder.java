@@ -9,4 +9,8 @@ public interface TagFinder {
 
     boolean find(int tag, String line);
 
+    int findCount(int tag,Line line,int group);
+
+    int findCount(int tag,String line,int group);
+
 }

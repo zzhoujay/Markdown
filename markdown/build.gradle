@@ -1,4 +1,8 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
+def version_code = 1
+def version_name = '0.0.1'
 
 android {
     compileSdkVersion 23
@@ -7,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode version_code
+        versionName version_name
     }
     buildTypes {
         release {
@@ -16,10 +20,33 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
+}
+
+
+publish {
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    //bintray.com用户名
+    userOrg = properties.getProperty("bintray.user")
+    //jcenter上的路径
+    groupId = "com.zzhoujay.markdown"
+    //项目名称
+    artifactId = 'markdown'
+    //版本号
+    publishVersion = version_name
+    //描述，不重要
+    desc = 'Android平台原生Markdown解析器'
+    //网站，不重要
+    website = 'https://github.com/zzhoujay/Markdown'
+
 }

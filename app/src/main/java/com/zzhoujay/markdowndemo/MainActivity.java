@@ -1,16 +1,15 @@
 package com.zzhoujay.markdowndemo;
 
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
-import com.zzhoujay.markdown.parser.MarkDownParser;
-import com.zzhoujay.markdown.parser.StyleBuilderImpl;
+import com.zzhoujay.markdown.MarkDown;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,19 +60,28 @@ public class MainActivity extends AppCompatActivity {
         textView.post(new Runnable() {
             @Override
             public void run() {
-                MarkDownParser markDownParser = new MarkDownParser(stream, new StyleBuilderImpl(textView, new Html.ImageGetter() {
+                Spanned spanned = MarkDown.fromMarkdown(stream, new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
                         Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
-                        drawable.setBounds(0,0,400,400);
+                        drawable.setBounds(0, 0, 400, 400);
                         return drawable;
                     }
-                }));
-                try {
-                    textView.setText(markDownParser.get());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                }, textView);
+                textView.setText(spanned);
+//                MarkDownParser markDownParser = new MarkDownParser(stream, new StyleBuilderImpl(textView, new Html.ImageGetter() {
+//                    @Override
+//                    public Drawable getDrawable(String source) {
+//                        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
+//                        drawable.setBounds(0,0,400,400);
+//                        return drawable;
+//                    }
+//                }));
+//                try {
+//                    textView.setText(markDownParser.parser());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
             }
         });

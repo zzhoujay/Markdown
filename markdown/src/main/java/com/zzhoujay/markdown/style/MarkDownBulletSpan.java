@@ -47,7 +47,6 @@ public class MarkDownBulletSpan extends BulletSpan {
         } else {
             index = null;
         }
-        System.out.println(level);
         mWantColor = true;
         mColor = color;
         this.textView = textView;

@@ -1,10 +1,17 @@
-package com.zzhoujay.markdown.parser;
+package com.zzhoujay.markdown;
 
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
+import com.zzhoujay.markdown.parser.Line;
+import com.zzhoujay.markdown.parser.LineQueue;
+import com.zzhoujay.markdown.parser.QueueConsumer;
+import com.zzhoujay.markdown.parser.StyleBuilder;
+import com.zzhoujay.markdown.parser.Tag;
+import com.zzhoujay.markdown.parser.TagHandler;
+import com.zzhoujay.markdown.parser.TagHandlerImpl;
 import com.zzhoujay.markdown.style.ScaleHeightSpan;
 
 import java.io.BufferedReader;
@@ -20,66 +27,29 @@ import java.util.regex.Pattern;
 /**
  * Created by zhou on 16-6-25.
  */
-public class MarkDownParser {
+class MarkDownParser {
 
-    private static final Pattern patternH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH2 = Pattern.compile("^\\s*#{2}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH3 = Pattern.compile("^\\s*#{3}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH4 = Pattern.compile("^\\s*#{4}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH5 = Pattern.compile("^\\s*#{5}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH6 = Pattern.compile("^\\s*#{6}\\s+([^#]*)(\\s+#)?");
-
-    private static final Pattern patternQuota = Pattern.compile("^\\s{0,3}>\\s+(.*)");
-    private static final Pattern patternUl = Pattern.compile("^\\s{0,3}[*+-]\\s+(.*)");
-    private static final Pattern patternOl = Pattern.compile("^\\s{0,3}\\d+\\.\\s+(.*)");
-
-    private static final Pattern patternItalic = Pattern.compile("[^*^_]*(([*_])([^*_].*?)\\2)");
-    private static final Pattern patternEm = Pattern.compile("[^*_]*(([*_])\\2([^*_].*?)\\2\\2)");
-    private static final Pattern patternEmItalic = Pattern.compile("[^*_]*(([*_])\\2\\2([^*_].*?)\\2\\2\\2)");
-    private static final Pattern patternDelete = Pattern.compile("[^~]*((~{2,4})([^~].*?)\\2)");
-    private static final Pattern patternCode = Pattern.compile("[^`]*((`+)([^`].*?)\\2)");
-
-    private static final Pattern patternLink = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
-    private static final Pattern patternImage = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
-    private static final Pattern patternLink2 = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternLink2Link = Pattern.compile("^\\s*\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
-    private static final Pattern patternImage2 = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternImage2Link = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
-
-    private static final Pattern patternEmail = Pattern.compile(".*?(<(\\S+@\\S+\\.\\S+)>).*?");
-    private static final Pattern patternAutoLink = Pattern.compile("https?://\\S+?");
-
-    private static final Pattern patternEndSpace = Pattern.compile("(.*?) {2} *$");
-    private static final Pattern patternInlineSpace = Pattern.compile("\\S*(\\s+)\\S+");
-
-    private static final Pattern patternCodeBlock = Pattern.compile("^( {4}|\\t)(.*)");
-    private static final Pattern patternCodeBlock2 = Pattern.compile("^\\s*```");
-
-    private static final Pattern patternBlankLine = Pattern.compile("^\\s*$");
-
-    private static final Pattern patternGap = Pattern.compile("^\\s*([-*]\\s*){3,}$");
 
     private BufferedReader reader;
     private StyleBuilder styleBuilder;
     private TagHandler tagHandler;
 
-    public MarkDownParser(BufferedReader reader, StyleBuilder styleBuilder) {
+    MarkDownParser(BufferedReader reader, StyleBuilder styleBuilder) {
         this.reader = reader;
         this.styleBuilder = styleBuilder;
         tagHandler = new TagHandlerImpl(styleBuilder);
     }
 
-    public MarkDownParser(InputStream inputStream, StyleBuilder styleBuilder) {
+    MarkDownParser(InputStream inputStream, StyleBuilder styleBuilder) {
         this(new BufferedReader(new InputStreamReader(inputStream)), styleBuilder);
     }
 
-    public MarkDownParser(String text, StyleBuilder styleBuilder) {
+    MarkDownParser(String text, StyleBuilder styleBuilder) {
         this(new BufferedReader(new StringReader(text)), styleBuilder);
     }
 
 
-    public Spannable get() throws IOException {
+    public Spannable parser() throws IOException {
         LineQueue queue = collect();
         return merge(queue);
     }
@@ -102,7 +72,13 @@ public class MarkDownParser {
         return queue;
     }
 
-    private Spannable merge(LineQueue queue) {
+    private Spannable merge(final LineQueue queue) {
+        tagHandler.setQueueProvider(new QueueConsumer.QueueProvider() {
+            @Override
+            public LineQueue getQueue() {
+                return queue;
+            }
+        });
         boolean block2 = false;
         removeBlankLine(queue);
         boolean need_next;
@@ -113,7 +89,7 @@ public class MarkDownParser {
             Line next = queue.nextLine();
             Line curr = queue.currLine();
 
-            if (queue.prevLine() != null && (queue.prevLine().getType() == Line.LINE_TYPE_OL || queue.prevLine().getType()== Line.LINE_TYPE_UL)
+            if (queue.prevLine() != null && (queue.prevLine().getType() == Line.LINE_TYPE_OL || queue.prevLine().getType() == Line.LINE_TYPE_UL)
                     && (tagHandler.find(Tag.UL, queue.currLine()) || tagHandler.find(Tag.OL, queue.currLine()))) {
                 notBlock = true;
             }
@@ -132,7 +108,6 @@ public class MarkDownParser {
                     removeBlankLine(queue, true);
                 }
                 need_next = false;
-                System.out.println(curr);
                 continue;
             }
 
@@ -145,19 +120,19 @@ public class MarkDownParser {
 
             if (tagHandler.find(Tag.H1_2, next)) {
                 curr.setType(Line.LINE_TYPE_H1);
-                curr.setStyle( SpannableStringBuilder.valueOf(curr.getSource()));
+                curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
                 tagHandler.inline(curr);
-                curr.setStyle( styleBuilder.h1(curr.getStyle()));
+                curr.setStyle(styleBuilder.h1(curr.getStyle()));
                 curr.removeNext();
                 removeBlankLine(queue);
                 continue;
             }
 
             if (tagHandler.find(Tag.H2_2, next)) {
-                curr.setType( Line.LINE_TYPE_H2);
-                curr.setStyle( SpannableStringBuilder.valueOf(curr.getSource()));
+                curr.setType(Line.LINE_TYPE_H2);
+                curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
                 tagHandler.inline(curr);
-                curr.setStyle( styleBuilder.h2(curr.getStyle()));
+                curr.setStyle(styleBuilder.h2(curr.getStyle()));
                 curr.removeNext();
                 removeBlankLine(queue);
                 continue;
@@ -177,9 +152,8 @@ public class MarkDownParser {
                         tagHandler.find(Tag.OL, queue.nextLine()) || tagHandler.find(Tag.H, queue.nextLine())) {
                     break;
                 }
-
-                int nextQuotaCount = findQuotaCount(queue.nextLine());
-                int currQuotaCount = findQuotaCount(queue.currLine());
+                int nextQuotaCount = tagHandler.findCount(Tag.QUOTA, queue.nextLine(), 1);
+                int currQuotaCount = tagHandler.findCount(Tag.QUOTA, queue.currLine(), 1);
                 if (nextQuotaCount > 0 && nextQuotaCount > currQuotaCount) {
                     break;
                 } else {
@@ -191,7 +165,7 @@ public class MarkDownParser {
                     if (tagHandler.find(Tag.UL, r) || tagHandler.find(Tag.OL, r) || tagHandler.find(Tag.H, r)) {
                         break;
                     } else {
-                        queue.currLine().setSource( curr.getSource() + ' ' + r);
+                        queue.currLine().setSource(curr.getSource() + ' ' + r);
                         queue.removeNext();
                     }
                 }
@@ -201,7 +175,7 @@ public class MarkDownParser {
                     tagHandler.h(queue)) {
                 continue;
             }
-            curr.setStyle( SpannableStringBuilder.valueOf(queue.getSource()));
+            curr.setStyle(SpannableStringBuilder.valueOf(queue.getSource()));
             tagHandler.inline(queue);
         } while (!need_next || queue.next());
         return mergeSpannable(queue);
@@ -243,7 +217,7 @@ public class MarkDownParser {
                     }
                     continue;
                 default:
-                    if (prev != null && (prev.getType()== Line.LINE_TYPE_CODE_BLOCK_1 || prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2)) {
+                    if (prev != null && (prev.getType() == Line.LINE_TYPE_CODE_BLOCK_1 || prev.getType() == Line.LINE_TYPE_CODE_BLOCK_2)) {
                         CharSequence[] cs = new CharSequence[codeBlock.size()];
                         builder.append(styleBuilder.codeBlock(codeBlock.toArray(cs))).append('\n').append('\n');
                         codeBlock.clear();
@@ -252,7 +226,7 @@ public class MarkDownParser {
             builder.append(curr.getStyle()).append('\n');
             switch (curr.getType()) {
                 case Line.LINE_TYPE_QUOTA:
-                    if (next != null && next.getType()== Line.LINE_TYPE_QUOTA) {
+                    if (next != null && next.getType() == Line.LINE_TYPE_QUOTA) {
                         int num = curr.getCount();
                         SpannableStringBuilder ssb = new SpannableStringBuilder(" ");
                         while (num > 0) {
@@ -324,21 +298,4 @@ public class MarkDownParser {
         return ss;
     }
 
-
-    private int findQuota(String line) {
-        Matcher matcher = patternQuota.matcher(line);
-        if (matcher.find()) {
-            return findQuota(matcher.group(1)) + 1;
-        }
-        return 0;
-    }
-
-
-    private int findQuotaCount(Line line) {
-        Matcher matcher = patternQuota.matcher(line.getSource());
-        if (matcher.find()) {
-            return findQuota(matcher.group(1)) + 1;
-        }
-        return 0;
-    }
 }

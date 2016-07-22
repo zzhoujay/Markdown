@@ -31,10 +31,10 @@ public class Line {
     private int type;
     private int count;
     private int attr;
-	
-	Line(){
-		
-	}
+
+    Line() {
+
+    }
 
 
     public Line(String source) {
@@ -42,169 +42,161 @@ public class Line {
         count = 1;
         type = LINE_NORMAL;
     }
-	
-	private Line(Line line){
-		this.source=line.source;
-		this.count=line.count;
-		this.attr=line.attr;
-		this.style=new SpannableStringBuilder(line.style);
-		this.type=line.type;
-	}
 
-	public void setSource(String source)
-	{
-		this.source = source;
-	}
+    private Line(Line line) {
+        this.source = line.source;
+        this.count = line.count;
+        this.attr = line.attr;
+        if (line.style != null) {
+            this.style = new SpannableStringBuilder(line.style);
+        }
+        this.type = line.type;
+    }
 
-	public String getSource()
-	{
-		return source;
-	}
+    public void setSource(String source) {
+        this.source = source;
+    }
 
-	public void setStyle(CharSequence style)
-	{
-		this.style = style;
-	}
+    public String getSource() {
+        return source;
+    }
 
-	public CharSequence getStyle()
-	{
-		return style;
-	}
+    public void setStyle(CharSequence style) {
+        this.style = style;
+    }
 
-	public void setType(int type)
-	{
-		this.type = type;
-	}
+    public CharSequence getStyle() {
+        return style;
+    }
 
-	public int getType()
-	{
-		return type;
-	}
+    public void setType(int type) {
+        this.type = type;
+    }
 
-	public void setCount(int count)
-	{
-		this.count = count;
-	}
+    public int getType() {
+        return type;
+    }
 
-	public int getCount()
-	{
-		return count;
-	}
+    public void setCount(int count) {
+        this.count = count;
+    }
 
-	public void setAttr(int attr)
-	{
-		this.attr = attr;
-	}
+    public int getCount() {
+        return count;
+    }
 
-	public int getAttr()
-	{
-		return attr;
-	}
-	
-	public Line get(){
-		return this;
-	}
-	
-	public Line nextLine(){
-		return next;
-	}
-	
-	public Line prevLine(){
-		return prev;
-	}
-	
-	public Line childLine(){
-		return child;
-	}
-	
-	public Line parentLine(){
-		return parent;
-	}
+    public void setAttr(int attr) {
+        this.attr = attr;
+    }
+
+    public int getAttr() {
+        return attr;
+    }
+
+    public Line get() {
+        return this;
+    }
+
+    public Line nextLine() {
+        return next;
+    }
+
+    public Line prevLine() {
+        return prev;
+    }
+
+    public Line childLine() {
+        return child;
+    }
+
+    public Line parentLine() {
+        return parent;
+    }
 
     public Line addNext(Line line) {
-		if(line==null){
-			next=null;
-		}else{
-			if (line.next != null) {
-				line.next.prev = null;
-			}
-			line.next = next;
-			if (next != null) {
-				next.prev = line;
-			}
-			if (line.prev != null) {
-				line.prev.next = null;
-			}
-			line.prev = this;
-			next = line;
-			if(child!=null){
-				child.addNext(line.child);
-			}
-		}
+        if (line == null) {
+            next = null;
+        } else {
+            if (line.next != null) {
+                line.next.prev = null;
+            }
+            line.next = next;
+            if (next != null) {
+                next.prev = line;
+            }
+            if (line.prev != null) {
+                line.prev.next = null;
+            }
+            line.prev = this;
+            next = line;
+            if (child != null) {
+                child.addNext(line.child);
+            }
+        }
         return line;
     }
 
     public Line addPrev(Line line) {
-		if(line==null){
-			prev=null;
-		}else{
-			if (line.prev != null) {
-				line.prev.next = null;
-			}
-			line.prev = prev;
-			if (prev != null) {
-				prev.next = line;
-			}
-			if (line.next != null) {
-				line.next.prev = null;
-			}
-			line.next = this;
-			prev = line;
-			if(child!=null){
-				child.addPrev(line.child);
-			}
-		}
+        if (line == null) {
+            prev = null;
+        } else {
+            if (line.prev != null) {
+                line.prev.next = null;
+            }
+            line.prev = prev;
+            if (prev != null) {
+                prev.next = line;
+            }
+            if (line.next != null) {
+                line.next.prev = null;
+            }
+            line.next = this;
+            prev = line;
+            if (child != null) {
+                child.addPrev(line.child);
+            }
+        }
         return line;
     }
 
     public Line add(Line line) {
         return addNext(line);
     }
-	
-	private void delete(){
-		if(child!=null){
-			child.delete();
-		}
-		if(prev!=null){
-			prev.next=null;
-		}
-		prev=null;
-		if(next!=null){
-			next.prev=null;
-		}
-		next=null;
-	}
-	
-	private void reduce(){
-		if(child!=null){
-			child.reduce();
-		}
-		if(prev!=null){
-			prev.next=next;
-		}
-		if(next!=null){
-			next.prev=prev;
-		}
-		next=null;
-		prev=null;
-	}
+
+    private void delete() {
+        if (child != null) {
+            child.delete();
+        }
+        if (prev != null) {
+            prev.next = null;
+        }
+        prev = null;
+        if (next != null) {
+            next.prev = null;
+        }
+        next = null;
+    }
+
+    private void reduce() {
+        if (child != null) {
+            child.reduce();
+        }
+        if (prev != null) {
+            prev.next = next;
+        }
+        if (next != null) {
+            next.prev = prev;
+        }
+        next = null;
+        prev = null;
+    }
 
     public void remove() {
-        if(parent==null){
-			reduce();
-		}else{
-			delete();
-		}
+        if (parent == null) {
+            reduce();
+        } else {
+            delete();
+        }
     }
 
     public Line removeNext() {
@@ -220,19 +212,19 @@ public class Line {
         }
         return this;
     }
-	
-	public void addChild(Line line){
-		if(child!=null){
-			child.parent=null;
-		}
-		child=line;
-		if(line.parent!=null){
-			line.parent.child=null;
-		}
-		line.parent=this;
-		attachChildToNext();
-		attachChildToPrev();
-	}
+
+    public void addChild(Line line) {
+        if (child != null) {
+            child.parent = null;
+        }
+        child = line;
+        if (line.parent != null) {
+            line.parent.child = null;
+        }
+        line.parent = this;
+        attachChildToNext();
+        attachChildToPrev();
+    }
 
     public void attachChildToNext() {
         if (child != null && next != null) {
@@ -265,15 +257,15 @@ public class Line {
             child.attachChildToPrev();
         }
     }
-	
-	public void attachToParent(Line line){
-		line.addChild(this);
-	}
-	
+
+    public void attachToParent(Line line) {
+        line.addChild(this);
+    }
+
 
     public void unAttachFromParent() {
         if (parent != null) {
-			delete();
+            delete();
             parent.child = null;
         }
         parent = null;
@@ -286,43 +278,43 @@ public class Line {
         return c;
     }
 
-    public Line copyToNext(){
-		Line p=null;
-		if(parent!=null){
-			p=parent.copyToNext();
-		}
-		Line line=new Line(this);
-		if(p==null){
-			line.next=next;
-			if(next!=null){
-				next.prev=line;
-			}
-			line.prev=this;
-			next=line;
-		}else{
-			p.addChild(line);
-		}
-		return line;
-	}
-	
-	public Line copyToPrev(){
-		Line p=null;
-		if(parent!=null){
-			p=parent.copyToPrev();
-		}
-		Line line=new Line(this);
-		if(p==null){
-			line.prev=prev;
-			if(prev!=null){
-				prev.next=line;
-			}
-			line.next=this;
-			prev=this;
-		}else{
-			p.addChild(line);
-		}
-		return line;
-	}
+    public Line copyToNext() {
+        Line p = null;
+        if (parent != null) {
+            p = parent.copyToNext();
+        }
+        Line line = new Line(this);
+        if (p == null) {
+            line.next = next;
+            if (next != null) {
+                next.prev = line;
+            }
+            line.prev = this;
+            next = line;
+        } else {
+            p.addChild(line);
+        }
+        return line;
+    }
+
+    public Line copyToPrev() {
+        Line p = null;
+        if (parent != null) {
+            p = parent.copyToPrev();
+        }
+        Line line = new Line(this);
+        if (p == null) {
+            line.prev = prev;
+            if (prev != null) {
+                prev.next = line;
+            }
+            line.next = this;
+            prev = this;
+        } else {
+            p.addChild(line);
+        }
+        return line;
+    }
 
 
     @Override

@@ -3,7 +3,7 @@ package com.zzhoujay.markdown.parser;
 /**
  * Created by zhou on 16-7-10.
  */
-public interface TagHandler extends TagFinder {
+public interface TagHandler extends TagFinder,QueueConsumer {
 
     boolean h(Line line);
 
