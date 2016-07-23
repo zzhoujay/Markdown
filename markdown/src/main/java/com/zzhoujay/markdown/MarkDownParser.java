@@ -103,7 +103,7 @@ class MarkDownParser {
 
             if (!notBlock && tagHandler.codeBlock2(queue)) {
                 block2 = !block2;
-                queue.remove();
+                queue.removeCurrLine();
                 if (!block2) {
                     removeBlankLine(queue, true);
                 }
@@ -123,7 +123,7 @@ class MarkDownParser {
                 curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
                 tagHandler.inline(curr);
                 curr.setStyle(styleBuilder.h1(curr.getStyle()));
-                curr.removeNext();
+                queue.removeNext();
                 removeBlankLine(queue);
                 continue;
             }
@@ -133,7 +133,7 @@ class MarkDownParser {
                 curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
                 tagHandler.inline(curr);
                 curr.setStyle(styleBuilder.h2(curr.getStyle()));
-                curr.removeNext();
+                queue.removeNext();
                 removeBlankLine(queue);
                 continue;
             }
@@ -164,7 +164,7 @@ class MarkDownParser {
 //                        if (findUl(r)||findOl(r)) {
                     if (tagHandler.find(Tag.UL, r) || tagHandler.find(Tag.OL, r) || tagHandler.find(Tag.H, r)) {
                         break;
-                    } else {
+                    }else  {
                         queue.currLine().setSource(curr.getSource() + ' ' + r);
                         queue.removeNext();
                     }
@@ -226,32 +226,9 @@ class MarkDownParser {
             builder.append(curr.getStyle()).append('\n');
             switch (curr.getType()) {
                 case Line.LINE_TYPE_QUOTA:
-                    if (next != null && next.getType() == Line.LINE_TYPE_QUOTA) {
-                        int num = curr.getCount();
-                        SpannableStringBuilder ssb = new SpannableStringBuilder(" ");
-                        while (num > 0) {
-                            ssb = styleBuilder.quota(ssb);
-                            num--;
-                        }
-                        ssb.append('\n');
-                        builder.append(ssb);
-                    } else {
+                    if(next!=null&&next.getType()!=Line.LINE_TYPE_QUOTA){
                         builder.append('\n');
                     }
-                    break;
-                case Line.LINE_TYPE_H3:
-                    builder.append('\n');
-                    break;
-                case Line.LINE_TYPE_H4:
-                    builder.append('\n');
-                    break;
-                case Line.LINE_TYPE_H5:
-                case Line.LINE_TYPE_H6:
-                case Line.LINE_TYPE_H1:
-                case Line.LINE_TYPE_H2:
-                case Line.LINE_TYPE_GAP:
-                case Line.LINE_NORMAL:
-                    builder.append('\n');
                     break;
                 case Line.LINE_TYPE_UL:
                     if (next != null && next.getType() == Line.LINE_TYPE_UL)
@@ -263,6 +240,17 @@ class MarkDownParser {
                         builder.append(listMarginBottom());
                     }
                     builder.append('\n');
+                    break;
+                case Line.LINE_TYPE_H3:
+                case Line.LINE_TYPE_H4:
+                case Line.LINE_TYPE_H5:
+                case Line.LINE_TYPE_H6:
+                case Line.LINE_TYPE_H1:
+                case Line.LINE_TYPE_H2:
+                case Line.LINE_TYPE_GAP:
+                case Line.LINE_NORMAL:
+                    builder.append('\n');
+                    break;
             }
         } while (queue.next());
         return builder;
@@ -274,20 +262,21 @@ class MarkDownParser {
 
     private boolean removeBlankLine(LineQueue queue, boolean curr) {
         boolean flag = false;
-        if (curr) {
-            queue = queue.copy();
-        } else {
-            queue = queue.copyNext();
-        }
-        if (queue == null) {
-            return false;
+        Line m = curr ? queue.prevLine() : queue.get();
+        if (!curr) {
+            queue.next();
         }
         do {
-            if (!tagHandler.find(Tag.BLANK, queue.get())) {
+            if (!tagHandler.find(Tag.BLANK, queue.get()) || queue.get() == m) {
                 break;
             }
             flag = true;
         } while (queue.removeCurrLine() != null);
+        if (!curr) {
+            if (queue.get() != m) {
+                queue.prev();
+            }
+        }
         return flag;
     }
 

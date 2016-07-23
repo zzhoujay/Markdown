@@ -3,7 +3,7 @@ package com.zzhoujay.markdown.parser;
 /**
  * Created by zhou on 16-7-2.
  */
-public class LineQueue extends Line{
+public class LineQueue extends Line {
 
     private Line root;
     private Line curr;
@@ -32,23 +32,30 @@ public class LineQueue extends Line{
         return curr.prevLine();
     }
 
-	@Override
-	public Line get()
-	{
-		return curr;
-	}
-	
+    @Override
+    public Line get() {
+        return curr;
+    }
+
 
     public Line currLine() {
         return get();
     }
 
     public boolean next() {
-        return (curr = curr.nextLine()) != null;
+        if (curr.nextLine() == null) {
+            return false;
+        }
+        curr = curr.nextLine();
+        return true;
     }
 
     public boolean prev() {
-        return (curr = curr.prevLine()) != null;
+        if (curr.prevLine() == null) {
+            return false;
+        }
+        curr = currLine().prevLine();
+        return true;
     }
 
     public boolean end() {
@@ -78,6 +85,9 @@ public class LineQueue extends Line{
             tmp = last.prevLine();
         } else {
             tmp = curr.nextLine();
+            if (curr == root) {
+                root = tmp;
+            }
         }
         curr.remove();
         Line r = curr;
@@ -105,160 +115,131 @@ public class LineQueue extends Line{
         return new LineQueue(this, curr.nextLine());
     }
 
-    
 
     public void reset() {
         curr = root;
     }
 
-	@Override
-	public Line createChild(String src)
-	{
-		return curr.createChild(src);
-	}
+    @Override
+    public Line createChild(String src) {
+        return curr.createChild(src);
+    }
 
-	@Override
-	public Line addNext(Line line)
-	{
-		return curr.addNext(line);
-	}
+    @Override
+    public Line addNext(Line line) {
+        return curr.addNext(line);
+    }
 
-	@Override
-	public Line addPrev(Line line)
-	{
-		return curr.addPrev(line);
-	}
+    @Override
+    public Line addPrev(Line line) {
+        return curr.addPrev(line);
+    }
 
-	@Override
-	public Line add(Line line)
-	{
-		return curr.add(line);
-	}
-	
-	
+    @Override
+    public Line add(Line line) {
+        return curr.add(line);
+    }
 
-	@Override
-	public void remove()
-	{
-		curr.remove();
-	}
 
-	@Override
-	public void addChild(Line line)
-	{
-		curr.addChild(line);
-	}
+    @Override
+    public void remove() {
+        curr.remove();
+    }
 
-	@Override
-	public Line removeNext()
-	{
-		return curr.removeNext();
-	}
+    @Override
+    public void addChild(Line line) {
+        curr.addChild(line);
+    }
 
-	@Override
-	public Line removePrev()
-	{
-		return curr.removePrev();
-	}
+    @Override
+    public Line removeNext() {
+        return curr.removeNext();
+    }
 
-	@Override
-	public void attachToParent(Line line)
-	{
-		curr.attachToParent(line);
-	}
+    @Override
+    public Line removePrev() {
+        return curr.removePrev();
+    }
 
-	@Override
-	public void unAttachFromParent()
-	{
-		curr.unAttachFromParent();
-	}
+    @Override
+    public void attachToParent(Line line) {
+        curr.attachToParent(line);
+    }
 
-	@Override
-	public Line copyToNext()
-	{
-		return curr.copyToNext();
-	}
+    @Override
+    public void unAttachFromParent() {
+        curr.unAttachFromParent();
+    }
 
-	@Override
-	public Line copyToPrev()
-	{
-		return curr.copyToPrev();
-	}
+    @Override
+    public Line copyToNext() {
+        return curr.copyToNext();
+    }
 
-	@Override
-	public Line childLine()
-	{
-		return curr.childLine();
-	}
+    @Override
+    public Line copyToPrev() {
+        return curr.copyToPrev();
+    }
 
-	@Override
-	public Line parentLine()
-	{
-		return curr.parentLine();
-	}
+    @Override
+    public Line childLine() {
+        return curr.childLine();
+    }
 
-	@Override
-	public void setType(int type)
-	{
-		curr.setType(type);
-	}
+    @Override
+    public Line parentLine() {
+        return curr.parentLine();
+    }
 
-	@Override
-	public void setCount(int count)
-	{
-		curr.setCount(count);
-	}
+    @Override
+    public void setType(int type) {
+        curr.setType(type);
+    }
 
-	@Override
-	public void setAttr(int attr)
-	{
-		curr.setAttr(attr);
-	}
+    @Override
+    public void setCount(int count) {
+        curr.setCount(count);
+    }
 
-	@Override
-	public void setSource(String source)
-	{
-		curr.setSource(source);
-	}
+    @Override
+    public void setAttr(int attr) {
+        curr.setAttr(attr);
+    }
 
-	@Override
-	public void setStyle(CharSequence style)
-	{
-		curr.setStyle(style);
-	}
+    @Override
+    public void setSource(String source) {
+        curr.setSource(source);
+    }
 
-	@Override
-	public int getAttr()
-	{
-		return curr.getAttr();
-	}
+    @Override
+    public void setStyle(CharSequence style) {
+        curr.setStyle(style);
+    }
 
-	@Override
-	public CharSequence getStyle()
-	{
-		return curr.getStyle();
-	}
+    @Override
+    public int getAttr() {
+        return curr.getAttr();
+    }
 
-	@Override
-	public int getType()
-	{
-		return curr.getType();
-	}
+    @Override
+    public CharSequence getStyle() {
+        return curr.getStyle();
+    }
 
-	@Override
-	public int getCount()
-	{
-		return curr.getCount();
-	}
+    @Override
+    public int getType() {
+        return curr.getType();
+    }
 
-	@Override
-	public String getSource()
-	{
-		return curr.getSource();
-	}
-	
-	
+    @Override
+    public int getCount() {
+        return curr.getCount();
+    }
 
-	
-	
+    @Override
+    public String getSource() {
+        return curr.getSource();
+    }
+
+
 }
