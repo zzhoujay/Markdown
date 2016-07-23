@@ -4,7 +4,7 @@
 
 Markdown文本直接转换成Spanned，直接设置给TextView即可完成显示
 
-遵循Github Flavored Markdown标准
+遵循 Github Flavored Markdown 标准 _（如果大家发现有和GFM标准不相符合的地方，欢迎指出）_
 
 ### 效果展示
 
@@ -37,7 +37,7 @@ textView.post(new Runnable() {
 
 ### Use in Gradle
 
-`compile 'com.zzhoujay.markdown:markdown:0.0.1'`
+`compile 'com.zzhoujay.markdown:markdown:0.0.2'`
 
 **注意：** 当前并非稳定版，仅供尝鲜使用
 
