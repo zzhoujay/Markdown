@@ -21,8 +21,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by zhou on 16-6-25.
@@ -51,7 +49,7 @@ class MarkDownParser {
 
     public Spannable parser() throws IOException {
         LineQueue queue = collect();
-        return merge(queue);
+        return analytic(queue);
     }
 
     private LineQueue collect() throws IOException {
@@ -72,7 +70,7 @@ class MarkDownParser {
         return queue;
     }
 
-    private Spannable merge(final LineQueue queue) {
+    private Spannable analytic(final LineQueue queue) {
         tagHandler.setQueueProvider(new QueueConsumer.QueueProvider() {
             @Override
             public LineQueue getQueue() {
@@ -94,14 +92,14 @@ class MarkDownParser {
                 notBlock = true;
             }
 
-            if (!notBlock && !block2 && tagHandler.codeBlock1(queue)) {
+            if (!notBlock && !block2 && tagHandler.codeBlock1(queue.currLine())) {
                 if (next != null) {
                     removeBlankLine(queue);
                 }
                 continue;
             }
 
-            if (!notBlock && tagHandler.codeBlock2(queue)) {
+            if (!notBlock && tagHandler.codeBlock2(queue.currLine())) {
                 block2 = !block2;
                 queue.removeCurrLine();
                 if (!block2) {
@@ -112,28 +110,28 @@ class MarkDownParser {
             }
 
             if (block2) {
-                queue.setType(Line.LINE_TYPE_CODE_BLOCK_2);
-                queue.setStyle(queue.getSource());
+                queue.currLine().setType(Line.LINE_TYPE_CODE_BLOCK_2);
+                queue.currLine().setStyle(queue.currLine().getSource());
                 continue;
             }
 
 
             if (tagHandler.find(Tag.H1_2, next)) {
-                curr.setType(Line.LINE_TYPE_H1);
-                curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
-                tagHandler.inline(curr);
-                curr.setStyle(styleBuilder.h1(curr.getStyle()));
-                queue.removeNext();
+                queue.currLine().setType(Line.LINE_TYPE_H1);
+                queue.currLine().setStyle(SpannableStringBuilder.valueOf(queue.currLine().getSource()));
+                tagHandler.inline(queue.currLine());
+                queue.currLine().setStyle(styleBuilder.h1(queue.currLine().getStyle()));
+                queue.removeNextLine();
                 removeBlankLine(queue);
                 continue;
             }
 
             if (tagHandler.find(Tag.H2_2, next)) {
-                curr.setType(Line.LINE_TYPE_H2);
-                curr.setStyle(SpannableStringBuilder.valueOf(curr.getSource()));
-                tagHandler.inline(curr);
-                curr.setStyle(styleBuilder.h2(curr.getStyle()));
-                queue.removeNext();
+                queue.currLine().setType(Line.LINE_TYPE_H2);
+                queue.currLine().setStyle(SpannableStringBuilder.valueOf(queue.currLine().getSource()));
+                tagHandler.inline(queue.currLine());
+                queue.currLine().setStyle(styleBuilder.h2(queue.currLine().getStyle()));
+                queue.removeNextLine();
                 removeBlankLine(queue);
                 continue;
             }
@@ -166,27 +164,27 @@ class MarkDownParser {
                         break;
                     }else  {
                         queue.currLine().setSource(curr.getSource() + ' ' + r);
-                        queue.removeNext();
+                        queue.removeNextLine();
                     }
                 }
 
             }
-            if (tagHandler.gap(queue) || tagHandler.quota(queue) || tagHandler.ol(queue) || tagHandler.ul(queue) ||
-                    tagHandler.h(queue)) {
+            if (tagHandler.gap(queue.currLine()) || tagHandler.quota(queue.currLine()) || tagHandler.ol(queue.currLine()) ||
+                    tagHandler.ul(queue.currLine()) || tagHandler.h(queue.currLine())) {
                 continue;
             }
-            curr.setStyle(SpannableStringBuilder.valueOf(queue.getSource()));
-            tagHandler.inline(queue);
+            curr.setStyle(SpannableStringBuilder.valueOf(queue.currLine().getSource()));
+            tagHandler.inline(queue.currLine());
         } while (!need_next || queue.next());
-        return mergeSpannable(queue);
+        return merge(queue);
     }
 
-    private Spannable mergeSpannable(LineQueue queue) {
+    private Spannable merge(LineQueue queue) {
         queue.reset();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         List<CharSequence> codeBlock = new ArrayList<>();
         do {
-            Line curr = queue.get();
+            Line curr = queue.currLine();
             Line prev = queue.prevLine();
             Line next = queue.nextLine();
             switch (curr.getType()) {
@@ -262,18 +260,18 @@ class MarkDownParser {
 
     private boolean removeBlankLine(LineQueue queue, boolean curr) {
         boolean flag = false;
-        Line m = curr ? queue.prevLine() : queue.get();
+        Line m = curr ? queue.prevLine() : queue.currLine();
         if (!curr) {
             queue.next();
         }
         do {
-            if (!tagHandler.find(Tag.BLANK, queue.get()) || queue.get() == m) {
+            if (!tagHandler.find(Tag.BLANK, queue.currLine()) || queue.currLine() == m) {
                 break;
             }
             flag = true;
         } while (queue.removeCurrLine() != null);
         if (!curr) {
-            if (queue.get() != m) {
+            if (queue.currLine() != m) {
                 queue.prev();
             }
         }

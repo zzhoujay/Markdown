@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
 
-        final InputStream stream = getResources().openRawResource(R.raw.test);
+        final InputStream stream = getResources().openRawResource(R.raw.tt);
 //        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 //        final StringBuilder sb = new StringBuilder();
 //        String line;

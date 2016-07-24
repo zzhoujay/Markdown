@@ -191,7 +191,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean quota(Line line) {
-        LineQueue queue = line instanceof LineQueue ? (LineQueue) line : queueProvider.getQueue();
+        LineQueue queue = queueProvider.getQueue();
         line = line.get();
 
         Matcher matcher = patternQuota.matcher(line.getSource());
@@ -220,30 +220,6 @@ public class TagHandlerImpl implements TagHandler {
 
             line.setStyle(styleBuilder.quota(child.getStyle()));
             return true;
-
-//            CharSequence userText;
-//            line.setCount(1);
-//            if (quota(child)) {
-//                if (child.getType() == Line.LINE_TYPE_QUOTA)
-//                    line.setCount(child.getCount() + 1);
-//                line.setStyle(styleBuilder.quota(child.getStyle()));
-//                return true;
-//            }
-//            if (ul(child, true, 0) || ol(child, true, 0) || h(child)) {
-//                userText = child.getStyle();
-//            } else {
-//                userText = child.getSource();
-//            }
-//            SpannableStringBuilder builder;
-//            if (userText instanceof SpannableStringBuilder) {
-//                builder = (SpannableStringBuilder) userText;
-//            } else {
-//                builder = new SpannableStringBuilder(userText);
-//            }
-//            line.setStyle(builder);
-//            inline(line);
-//            line.setStyle(styleBuilder.quota(line.getStyle()));
-//            return true;
         }
         return false;
     }
@@ -261,16 +237,10 @@ public class TagHandlerImpl implements TagHandler {
             line.setAttr(0);
 
             Line parent = line.parentLine();
-            LineQueue queue;
+            LineQueue queue = queueProvider.getQueue();
             Line prev = line.prevLine();
 
-            if (queueProvider != null) {
-                queue = queueProvider.getQueue();
-            } else {
-                queue = (LineQueue) line;
-            }
-
-            boolean normal = queue.get().getType() == Line.LINE_TYPE_QUOTA;
+            boolean normal = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
 
             if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)) {
                 if (level > 0) {
@@ -302,7 +272,7 @@ public class TagHandlerImpl implements TagHandler {
                 } else {
                     line.addNext(line1);
                     queue.next();
-                    ul(queue, nextLevel);
+                    ul(queue.currLine(), nextLevel);
                 }
 
                 return true;
@@ -324,7 +294,7 @@ public class TagHandlerImpl implements TagHandler {
                 } else {
                     line.addNext(line1);
                     queue.next();
-                    ol(queue, nextLevel);
+                    ol(queue.currLine(), nextLevel);
                 }
 
                 return true;
@@ -364,17 +334,10 @@ public class TagHandlerImpl implements TagHandler {
             line.setAttr(0);
 
             Line parent = line.parentLine();
-            LineQueue queue;
+            LineQueue queue = queueProvider.getQueue();
             Line prev = line.prevLine();
 
-
-            if (queueProvider != null) {
-                queue = queueProvider.getQueue();
-            } else {
-                queue = (LineQueue) line;
-            }
-
-            boolean normal = queue.get().getType() == Line.LINE_TYPE_QUOTA;
+            boolean normal = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
 
             if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)) {
                 if (level > 0) {
@@ -406,7 +369,7 @@ public class TagHandlerImpl implements TagHandler {
                 } else {
                     line.addNext(line1);
                     queue.next();
-                    ul(queue, nextLevel);
+                    ul(queue.currLine(), nextLevel);
                 }
 
                 return true;
@@ -428,7 +391,7 @@ public class TagHandlerImpl implements TagHandler {
                 } else {
                     line.addNext(line1);
                     queue.next();
-                    ol(queue, nextLevel);
+                    ol(queue.currLine(), nextLevel);
                 }
 
                 return true;
@@ -694,6 +657,25 @@ public class TagHandlerImpl implements TagHandler {
         Matcher matcher = patternCodeBlock.matcher(line.getSource());
         if (matcher.find()) {
             String content = matcher.group(2);
+//            LineQueue queue = queueProvider.getQueue();
+//            Line next = queue.nextLine();
+//            StringBuilder sb = new StringBuilder(content);
+//            while (next != null) {
+//                Matcher m=patternCodeBlock.matcher(next.getSource());
+//                if(m.find()){
+//                    sb.append(m.group(2));
+//                    queue.removeNextLine();
+//                }else {
+//                    m=patternBlankLine.matcher(next.getSource());
+//                    if(m.find()){
+//                        Line n=next.nextLine();
+//                        while (n!=null){
+//
+//                        }
+//                    }
+//                }
+//                next=queue.nextLine();
+//            }
             line.setType(Line.LINE_TYPE_CODE_BLOCK_1);
             line.setStyle(content);
             return true;

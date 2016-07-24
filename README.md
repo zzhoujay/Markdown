@@ -37,7 +37,7 @@ textView.post(new Runnable() {
 
 ### Use in Gradle
 
-`compile 'com.zzhoujay.markdown:markdown:0.0.2'`
+`compile 'com.zzhoujay.markdown:markdown:0.0.3'`
 
 **注意：** 当前并非稳定版，仅供尝鲜使用
 
