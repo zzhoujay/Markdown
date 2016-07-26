@@ -15,79 +15,84 @@ import java.util.regex.Pattern;
  */
 public class TagHandlerImpl implements TagHandler {
 
-    private static final Pattern patternH1_2 = Pattern.compile("^\\s*=+$");
-    private static final Pattern patternH2_2 = Pattern.compile("^\\s*-+$");
+    
+	private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+$").matcher("");
+    private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+$").matcher("");
 
-    private static final Pattern patternH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH2 = Pattern.compile("^\\s*#{2}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH3 = Pattern.compile("^\\s*#{3}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH4 = Pattern.compile("^\\s*#{4}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH5 = Pattern.compile("^\\s*#{5}\\s+([^#]*)(\\s+#)?");
-    private static final Pattern patternH6 = Pattern.compile("^\\s*#{6}\\s+([^#]*)(\\s+#)?");
+    private static final Matcher matcherH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH2 = Pattern.compile("^\\s*#{2}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH3 = Pattern.compile("^\\s*#{3}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH4 = Pattern.compile("^\\s*#{4}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH5 = Pattern.compile("^\\s*#{5}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH6 = Pattern.compile("^\\s*#{6}\\s+([^#]*)(\\s+#)?").matcher("");
 
-    private static final Pattern patternQuota = Pattern.compile("^\\s{0,3}>\\s(.*)");
-    private static final Pattern patternUl = Pattern.compile("^\\s*[*+-]\\s+(.*)");
-    private static final Pattern patternOl = Pattern.compile("^\\s*\\d+\\.\\s+(.*)");
+    private static final Matcher matcherQuota = Pattern.compile("^\\s{0,3}>\\s(.*)").matcher("");
+    private static final Matcher matcherUl = Pattern.compile("^\\s*[*+-]\\s+(.*)").matcher("");
+    private static final Matcher matcherOl = Pattern.compile("^\\s*\\d+\\.\\s+(.*)").matcher("");
 
-    private static final Pattern patternItalic = Pattern.compile("[^*^_]*(([*_])([^*_].*?)\\2)");
-    private static final Pattern patternEm = Pattern.compile("[^*_]*(([*_])\\2([^*_].*?)\\2\\2)");
-    private static final Pattern patternEmItalic = Pattern.compile("[^*_]*(([*_])\\2\\2([^*_].*?)\\2\\2\\2)");
-    private static final Pattern patternDelete = Pattern.compile("[^~]*((~{2,4})([^~].*?)\\2)");
-    private static final Pattern patternCode = Pattern.compile("[^`]*((`+)([^`].*?)\\2)");
+    private static final Matcher matcherItalic = Pattern.compile("[^*^_]*(([*_])([^*_].*?)\\2)").matcher("");
+    private static final Matcher matcherEm = Pattern.compile("[^*_]*(([*_])\\2([^*_].*?)\\2\\2)").matcher("");
+    private static final Matcher matcherEmItalic = Pattern.compile("[^*_]*(([*_])\\2\\2([^*_].*?)\\2\\2\\2)").matcher("");
+    private static final Matcher matcherDelete = Pattern.compile("[^~]*((~{2,4})([^~].*?)\\2)").matcher("");
+    private static final Matcher matcherCode = Pattern.compile("[^`]*((`+)([^`].*?)\\2)").matcher("");
 
-    private static final Pattern patternLink = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
-    private static final Pattern patternImage = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))");
-    private static final Pattern patternLink2 = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternLinkId = Pattern.compile("^\\s*\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
-    private static final Pattern patternImage2 = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])");
-    private static final Pattern patternImageId = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$");
+    private static final Matcher matcherLink = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))").matcher("");
+    private static final Matcher matcherImage = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\(\\s*(\\S*?)(\\s+(['\"])(.*?)\\5)?\\s*?\\))").matcher("");
+    private static final Matcher matcherLink2 = Pattern.compile(".*?(\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])").matcher("");
+    private static final Matcher matcherLinkId = Pattern.compile("^\\s*\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$").matcher("");
+    private static final Matcher matcherImage2 = Pattern.compile(".*?(!\\[\\s*(.*?)\\s*]\\s*\\[\\s*(.*?)\\s*])").matcher("");
+    private static final Matcher matcherImageId = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$").matcher("");
 
-    private static final Pattern patternEmail = Pattern.compile(".*?(<(\\S+@\\S+\\.\\S+)>).*?");
-    private static final Pattern patternAutoLink = Pattern.compile("https?://\\S+?");
+    private static final Matcher matcherEmail = Pattern.compile(".*?(<(\\S+@\\S+\\.\\S+)>).*?").matcher("");
+    private static final Matcher matcherAutoLink = Pattern.compile("https?://\\S+?").matcher("");
 
-    private static final Pattern patternEndSpace = Pattern.compile("(.*?) {2} *$");
-    private static final Pattern patternInlineSpace = Pattern.compile("\\S*(\\s+)\\S+");
+    private static final Matcher matcherEndSpace = Pattern.compile("(.*?) {2} *$").matcher("");
+    private static final Matcher matcherInlineSpace = Pattern.compile("\\S*(\\s+)\\S+").matcher("");
 
-    private static final Pattern patternCodeBlock = Pattern.compile("^( {4}|\\t)(.*)");
-    private static final Pattern patternCodeBlock2 = Pattern.compile("^\\s*```");
+    private static final Matcher matcherCodeBlock = Pattern.compile("^( {4}|\\t)(.*)").matcher("");
+    private static final Matcher matcherCodeBlock2 = Pattern.compile("^\\s*```").matcher("");
 
-    private static final Pattern patternBlankLine = Pattern.compile("^\\s*$");
+    private static final Matcher matcherBlankLine = Pattern.compile("^\\s*$").matcher("");
 
-    private static final Pattern patternGap = Pattern.compile("^\\s*([-*]\\s*){3,}$");
+    private static final Matcher matcherGap = Pattern.compile("^\\s*([-*]\\s*){3,}$").matcher("");
 
-    private static final SparseArray<Pattern> patterns = new SparseArray<>();
+
+	private static final SparseArray<Matcher> matchers=new SparseArray<>();
 
     static {
-        patterns.put(Tag.CODE_BLOCK_1, patternCodeBlock);
-        patterns.put(Tag.CODE_BLOCK_2, patternCodeBlock2);
-        patterns.put(Tag.H1, patternH1);
-        patterns.put(Tag.H2, patternH2);
-        patterns.put(Tag.H3, patternH3);
-        patterns.put(Tag.H4, patternH4);
-        patterns.put(Tag.H5, patternH5);
-        patterns.put(Tag.H6, patternH6);
-        patterns.put(Tag.H, patternH);
-        patterns.put(Tag.QUOTA, patternQuota);
-        patterns.put(Tag.UL, patternUl);
-        patterns.put(Tag.OL, patternOl);
-        patterns.put(Tag.EM, patternEm);
-        patterns.put(Tag.ITALIC, patternItalic);
-        patterns.put(Tag.EM_ITALIC, patternEmItalic);
-        patterns.put(Tag.EMAIL, patternEmail);
-        patterns.put(Tag.AUTO_LINK, patternAutoLink);
-        patterns.put(Tag.DELETE, patternDelete);
-        patterns.put(Tag.LINK, patternLink);
-        patterns.put(Tag.LINK2, patternLink2);
-        patterns.put(Tag.LINK_ID, patternLinkId);
-        patterns.put(Tag.IMAGE, patternImage);
-        patterns.put(Tag.IMAGE2, patternImage2);
-        patterns.put(Tag.IMAGE_ID, patternImageId);
-        patterns.put(Tag.BLANK, patternBlankLine);
-        patterns.put(Tag.NEW_LINE, patternEndSpace);
-        patterns.put(Tag.GAP, patternGap);
-        patterns.put(Tag.H1_2, patternH1_2);
-        patterns.put(Tag.H2_2, patternH2_2);
+
+		
+		matchers.put(Tag.CODE_BLOCK_1, matcherCodeBlock);
+        matchers.put(Tag.CODE_BLOCK_2, matcherCodeBlock2);
+        matchers.put(Tag.H1, matcherH1);
+        matchers.put(Tag.H2, matcherH2);
+        matchers.put(Tag.H3, matcherH3);
+        matchers.put(Tag.H4, matcherH4);
+        matchers.put(Tag.H5, matcherH5);
+        matchers.put(Tag.H6, matcherH6);
+        matchers.put(Tag.H, matcherH);
+        matchers.put(Tag.QUOTA, matcherQuota);
+        matchers.put(Tag.UL, matcherUl);
+        matchers.put(Tag.OL, matcherOl);
+        matchers.put(Tag.EM, matcherEm);
+        matchers.put(Tag.ITALIC, matcherItalic);
+        matchers.put(Tag.EM_ITALIC, matcherEmItalic);
+        matchers.put(Tag.EMAIL, matcherEmail);
+        matchers.put(Tag.AUTO_LINK, matcherAutoLink);
+        matchers.put(Tag.DELETE, matcherDelete);
+        matchers.put(Tag.LINK, matcherLink);
+        matchers.put(Tag.LINK2, matcherLink2);
+        matchers.put(Tag.LINK_ID, matcherLinkId);
+        matchers.put(Tag.IMAGE, matcherImage);
+        matchers.put(Tag.IMAGE2, matcherImage2);
+        matchers.put(Tag.IMAGE_ID, matcherImageId);
+        matchers.put(Tag.BLANK, matcherBlankLine);
+        matchers.put(Tag.NEW_LINE, matcherEndSpace);
+        matchers.put(Tag.GAP, matcherGap);
+        matchers.put(Tag.H1_2, matcherH1_2);
+        matchers.put(Tag.H2_2, matcherH2_2);
+		matchers.put(Tag.CODE,matcherCode);
     }
 
     private StyleBuilder styleBuilder;
@@ -109,8 +114,8 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h1(Line line) {
-        Matcher matcher = patternH1.matcher(line.getSource());
-        if (matcher.find()) {
+        Matcher matcher = obtain(Tag.H1,line.getSource());
+        if (matcher!=null&&matcher.find()) {
             line.setType(Line.LINE_TYPE_H1);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
             inline(line);
@@ -122,7 +127,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h2(Line line) {
-        Matcher matcher = patternH2.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.H2,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H2);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -135,7 +140,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h3(Line line) {
-        Matcher matcher = patternH3.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.H3,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H3);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -149,7 +154,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h4(Line line) {
-        Matcher matcher = patternH4.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.H4,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H4);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -163,7 +168,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h5(Line line) {
-        Matcher matcher = patternH5.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.H5,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H5);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -177,7 +182,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h6(Line line) {
-        Matcher matcher = patternH6.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.H6,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H6);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -194,7 +199,7 @@ public class TagHandlerImpl implements TagHandler {
         LineQueue queue = queueProvider.getQueue();
         line = line.get();
 
-        Matcher matcher = patternQuota.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.QUOTA,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_QUOTA);
             Line child = line.createChild(matcher.group(1));
@@ -230,7 +235,7 @@ public class TagHandlerImpl implements TagHandler {
     }
 
     private boolean ul(Line line, int level) {
-        Matcher matcher = patternUl.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.UL,line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_UL);
             Line line1 = line.createChild(matcher.group(1));
@@ -326,7 +331,7 @@ public class TagHandlerImpl implements TagHandler {
     }
 
     private boolean ol(Line line, int level) {
-        Matcher matcher = patternOl.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.OL,line.getSource());
         if (matcher.find()) {
             int index = 1;
             line.setType(Line.LINE_TYPE_OL);
@@ -422,7 +427,7 @@ public class TagHandlerImpl implements TagHandler {
     @Override
     public boolean gap(Line line) {
         line = line.get();
-        Matcher matcher = patternGap.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.GAP,line.getSource());
         if (matcher.matches()) {
             line.setType(Line.LINE_TYPE_GAP);
             line.setStyle(styleBuilder.gap());
@@ -435,7 +440,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean em(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternEm.matcher(line.getStyle());
+        Matcher matcher = obtain(Tag.EM,builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -455,7 +460,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean italic(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternItalic.matcher(builder);
+        Matcher matcher = obtain(Tag.ITALIC,builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -475,7 +480,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean emItalic(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternEmItalic.matcher(builder);
+        Matcher matcher = obtain(Tag.EM_ITALIC,builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -495,7 +500,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean code(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternCode.matcher(builder);
+        Matcher matcher = obtain(Tag.CODE,builder);
         if (matcher.find()) {
             String content = matcher.group(3);
             builder.delete(matcher.start(1), matcher.end(1));
@@ -510,7 +515,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean email(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternEmail.matcher(builder);
+        Matcher matcher = obtain(Tag.EMAIL,builder);
         if (matcher.find()) {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(2), matcher.end(2));
             builder.delete(matcher.start(1), matcher.end(1));
@@ -525,7 +530,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean delete(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternDelete.matcher(builder);
+        Matcher matcher = obtain(Tag.DELETE,builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -545,7 +550,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean autoLink(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternAutoLink.matcher(builder);
+        Matcher matcher = obtain(Tag.AUTO_LINK,builder);
         while (matcher.find()) {
             String content = matcher.group();
             builder.delete(matcher.start(), matcher.end());
@@ -558,7 +563,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean link(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternLink.matcher(builder);
+        Matcher matcher = obtain(Tag.LINK,builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String link = matcher.group(3);
@@ -575,7 +580,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean link2(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternLink2.matcher(builder);
+        Matcher matcher = obtain(Tag.LINK2,builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String id = matcher.group(3);
@@ -592,7 +597,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean linkId(String line) {
-        Matcher matcher = patternLinkId.matcher(line);
+        Matcher matcher = obtain(Tag.LINK_ID,line);
         if (matcher.find()) {
             String id = matcher.group(1);
             String link = matcher.group(2);
@@ -607,7 +612,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean image(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternImage.matcher(builder);
+        Matcher matcher = obtain(Tag.IMAGE,builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String link = matcher.group(3);
@@ -624,7 +629,7 @@ public class TagHandlerImpl implements TagHandler {
     public boolean image2(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = patternImage2.matcher(builder);
+        Matcher matcher = obtain(Tag.IMAGE2,builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String id = matcher.group(3);
@@ -641,7 +646,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean imageId(String line) {
-        Matcher matcher = patternImageId.matcher(line);
+        Matcher matcher = obtain(Tag.IMAGE_ID,line);
         if (matcher.find()) {
             String id = matcher.group(1);
             String link = matcher.group(2);
@@ -654,7 +659,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean codeBlock1(Line line) {
-        Matcher matcher = patternCodeBlock.matcher(line.getSource());
+        Matcher matcher = obtain(Tag.CODE_BLOCK_1,line.getSource());
         if (matcher.find()) {
             String content = matcher.group(2);
 //            LineQueue queue = queueProvider.getQueue();
@@ -714,8 +719,10 @@ public class TagHandlerImpl implements TagHandler {
         if (line == null) {
             return false;
         }
-        Pattern pattern = patterns.get(tag);
-        return pattern != null && pattern.matcher(line).find();
+		Matcher m=obtain(tag,line);
+		return m!=null&&m.find();
+//        Pattern pattern = patterns.get(tag);
+//        return pattern != null && pattern.matcher(line).find();
     }
 
     @Override
@@ -728,13 +735,15 @@ public class TagHandlerImpl implements TagHandler {
         if (line == null) {
             return 0;
         }
-        Pattern pattern = patterns.get(tag);
-        if (pattern != null) {
-            Matcher matcher = pattern.matcher(line);
+        
+            Matcher matcher = obtain(tag,line);
+			if(matcher==null){
+				return 0;
+			}
             if (matcher.find()) {
                 return findCount(tag, matcher.group(group), group) + 1;
             }
-        }
+        
         return 0;
     }
 
@@ -749,6 +758,14 @@ public class TagHandlerImpl implements TagHandler {
         }
         return false;
     }
+	
+	private Matcher obtain(int tag,CharSequence src){
+		Matcher m=matchers.get(tag,null);
+		if(m!=null){
+			m.reset(src);
+		}
+		return m;
+	}
 
     public void setQueueProvider(QueueProvider queueProvider) {
         this.queueProvider = queueProvider;
