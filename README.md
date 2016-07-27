@@ -1,10 +1,10 @@
 # MarkDown
 
-> Android平台的原生Markdown解析器
+> Android平台的原生Markdown解析器，已整合进 [RichText](https://github.com/zzhoujay/RichText)
 
-Markdown文本直接转换成Spanned，直接设置给TextView即可完成显示
-
-遵循 Github Flavored Markdown 标准 _（如果大家发现有和GFM标准不相符合的地方，欢迎指出）_
+* 由markdown文本直接转换为Spanned，快捷高效
+* 不依赖特定控件，低侵入性
+* 遵循 Github Flavored Markdown 标准
 
 ### 效果展示
 
@@ -15,7 +15,6 @@ Markdown文本直接转换成Spanned，直接设置给TextView即可完成显示
 ```
 Markdown.fromMarkdown(text,imageGetter,textView);
 ```
-
 **注意：** 此方法需要在textView的Measure完成后调用，因为需要获取textView的宽高
 
 例子：
@@ -35,27 +34,27 @@ textView.post(new Runnable() {
 }
 ```
 
+### 在RichText中使用
+
+[RichText](https://github.com/zzhoujay/RichText) 包含了一些对图片和其它东西的处理，使用更简单
+```
+RichText.fromMarkdown(markdown).into(textView);
+```
+
 ### Use in Gradle
 
-`compile 'com.zzhoujay.markdown:markdown:0.0.3'`
+`compile 'com.zzhoujay.markdown:markdown:0.0.4'`
 
-**注意：** 当前并非稳定版，仅供尝鲜使用
-
-### 项目进度
-
-* 已完成大部分功能开发
-* 一些细节优化和接口待开发
 
 ### 已知问题
 
-* 引用块内不支持Setext-style的标题（后续会想办法修复）
+* ~~引用块内不支持Setext-style的标题（后续会想办法修复~~ (已修复)
+* 暂不支持使用反斜杠 \\ 转义
 * 不支持表格
 
 
 ### 后续计划
 
-* 修复完善当前版本
-* 整合进 [RichText](https://github.com/zzhoujay/RichText)
 * 修复一些已知问题
 
 _by zzhoujay_

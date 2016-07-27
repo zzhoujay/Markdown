@@ -18,7 +18,7 @@ public class MarkDown {
     public static Spanned fromMarkdown(String source, Html.ImageGetter imageGetter, TextView textView) {
         MarkDownParser parser = new MarkDownParser(source, new StyleBuilderImpl(textView, imageGetter));
         try {
-            return parser.parser();
+            return parser.parse();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,7 +28,7 @@ public class MarkDown {
     public static Spanned fromMarkdown(InputStream inputStream, Html.ImageGetter imageGetter, TextView textView) {
         MarkDownParser parser = new MarkDownParser(inputStream, new StyleBuilderImpl(textView, imageGetter));
         try {
-            return parser.parser();
+            return parser.parse();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,7 +38,7 @@ public class MarkDown {
     public static Spanned fromMarkdown(BufferedReader reader, Html.ImageGetter imageGetter, TextView textView) {
         MarkDownParser parser = new MarkDownParser(reader, new StyleBuilderImpl(textView, imageGetter));
         try {
-            return parser.parser();
+            return parser.parse();
         } catch (IOException e) {
             e.printStackTrace();
         }

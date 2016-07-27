@@ -16,8 +16,8 @@ import android.util.*;
  */
 public class TagHandlerImpl implements TagHandler{
     
-	private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+$").matcher("");
-    private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+$").matcher("");
+	private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+\\s*$").matcher("");
+    private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+\\s*$").matcher("");
 
     private static final Matcher matcherH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?").matcher("");
     private static final Matcher matcherH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?").matcher("");
@@ -31,7 +31,7 @@ public class TagHandlerImpl implements TagHandler{
     private static final Matcher matcherUl = Pattern.compile("^\\s*[*+-]\\s+(.*)").matcher("");
     private static final Matcher matcherOl = Pattern.compile("^\\s*\\d+\\.\\s+(.*)").matcher("");
 
-    private static final Matcher matcherItalic = Pattern.compile("[^*^_]*(([*_])([^*_].*?)\\2)").matcher("");
+    private static final Matcher matcherItalic = Pattern.compile("[^*_]*(([*_])([^*_].*?)\\2)").matcher("");
     private static final Matcher matcherEm = Pattern.compile("[^*_]*(([*_])\\2([^*_].*?)\\2\\2)").matcher("");
     private static final Matcher matcherEmItalic = Pattern.compile("[^*_]*(([*_])\\2\\2([^*_].*?)\\2\\2\\2)").matcher("");
     private static final Matcher matcherDelete = Pattern.compile("[^~]*((~{2,4})([^~].*?)\\2)").matcher("");
@@ -45,7 +45,7 @@ public class TagHandlerImpl implements TagHandler{
     private static final Matcher matcherImageId = Pattern.compile("^\\s*!\\[\\s*(.*?)\\s*]:\\s*(\\S+?)(\\s+(['\"])(.*?)\\4)?\\s*$").matcher("");
 
     private static final Matcher matcherEmail = Pattern.compile(".*?(<(\\S+@\\S+\\.\\S+)>).*?").matcher("");
-    private static final Matcher matcherAutoLink = Pattern.compile("https?://\\S+?").matcher("");
+    private static final Matcher matcherAutoLink = Pattern.compile("((https|http|ftp|rtsp|mms)?://)[^\\s]+").matcher("");
 
     private static final Matcher matcherEndSpace = Pattern.compile("(.*?) {2} *$").matcher("");
     private static final Matcher matcherInlineSpace = Pattern.compile("\\S*(\\s+)\\S+").matcher("");
