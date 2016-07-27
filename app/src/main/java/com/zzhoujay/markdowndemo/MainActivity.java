@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.zzhoujay.markdown.MarkDown;
 
 import java.io.InputStream;
+import android.widget.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,35 +32,12 @@ public class MainActivity extends AppCompatActivity {
         assert textView != null;
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-//        textView.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                SpannableStringBuilder sb = new SpannableStringBuilder();
-//                sb.append("hello world zzhoujay");
-//                StyleSpan styleSpan = new StyleSpan(Typeface.ITALIC);
-//                StyleSpan styleSpan1 = new StyleSpan(Typeface.BOLD);
-//                sb.setSpan(styleSpan,0,sb.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                sb.setSpan(styleSpan1,4,10,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                textView.setText(sb);
-//            }
-//        });
-
-
         final InputStream stream = getResources().openRawResource(R.raw.tt);
-//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-//        final StringBuilder sb = new StringBuilder();
-//        String line;
-//        try {
-//            while ((line = bufferedReader.readLine()) != null) {
-//                sb.append(line).append('\n');
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         textView.post(new Runnable() {
             @Override
             public void run() {
+				long time=System.nanoTime();
                 Spanned spanned = MarkDown.fromMarkdown(stream, new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
@@ -68,36 +46,10 @@ public class MainActivity extends AppCompatActivity {
                         return drawable;
                     }
                 }, textView);
+				long useTime=System.nanoTime()-time;
+				Toast.makeText(getApplicationContext(),"use time:"+useTime,Toast.LENGTH_LONG).show();
                 textView.setText(spanned);
-//                MarkDownParser markDownParser = new MarkDownParser(stream, new StyleBuilderImpl(textView, new Html.ImageGetter() {
-//                    @Override
-//                    public Drawable getDrawable(String source) {
-//                        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
-//                        drawable.setBounds(0,0,400,400);
-//                        return drawable;
-//                    }
-//                }));
-//                try {
-//                    textView.setText(markDownParser.parser());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
             }
         });
-
-//
-//        Pattern pattern = Pattern.compile("#\\s+(.*)");
-//        String test = "# hello";
-//        SpannableStringBuilder builder = new SpannableStringBuilder(test);
-//        style.setSpan(new ForegroundColorSpan(Color.RED), 1, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        Matcher matcher = pattern.matcher(style);
-//        if (matcher.find()) {
-//            Log.i("find", matcher.group(1));
-//            System.out.println(matcher.group(1));
-//        } else {
-//            Log.i("find", matcher.group(1));
-//            System.out.println("gg");
-//        }
     }
 }

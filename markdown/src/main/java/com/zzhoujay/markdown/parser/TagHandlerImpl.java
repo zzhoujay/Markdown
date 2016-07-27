@@ -9,12 +9,12 @@ import com.zzhoujay.markdown.style.CodeSpan;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.util.*;
 
 /**
  * Created by zhou on 16-7-10.
  */
-public class TagHandlerImpl implements TagHandler {
-
+public class TagHandlerImpl implements TagHandler{
     
 	private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+$").matcher("");
     private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+$").matcher("");
@@ -662,35 +662,75 @@ public class TagHandlerImpl implements TagHandler {
         Matcher matcher = obtain(Tag.CODE_BLOCK_1,line.getSource());
         if (matcher.find()) {
             String content = matcher.group(2);
-//            LineQueue queue = queueProvider.getQueue();
-//            Line next = queue.nextLine();
-//            StringBuilder sb = new StringBuilder(content);
-//            while (next != null) {
-//                Matcher m=patternCodeBlock.matcher(next.getSource());
-//                if(m.find()){
-//                    sb.append(m.group(2));
-//                    queue.removeNextLine();
-//                }else {
-//                    m=patternBlankLine.matcher(next.getSource());
-//                    if(m.find()){
-//                        Line n=next.nextLine();
-//                        while (n!=null){
-//
-//                        }
-//                    }
-//                }
-//                next=queue.nextLine();
-//            }
+            LineQueue queue = queueProvider.getQueue();
+            Line next = queue.nextLine();
+            StringBuilder sb = new StringBuilder(content);
+			StringBuilder bsb=new StringBuilder();
+			
+			while(next!=null){
+				CharSequence r=get(Tag.CODE_BLOCK_1,next,2);
+				if(r==null){
+					if(find(Tag.BLANK,next)){
+						bsb.append(' ').append('\n');
+					}else{
+						break;
+					}
+				}else{
+					if(bsb.length()!=0){
+						sb.append(bsb).append(r);
+						bsb.delete(0,sb.length());
+					}else{
+						sb.append('\n').append(r);
+					}
+				}
+				queue.removeNextLine();
+				next=queue.nextLine();
+			}
+			
+            
             line.setType(Line.LINE_TYPE_CODE_BLOCK_1);
-            line.setStyle(content);
+            line.setStyle(styleBuilder.codeBlock(sb.toString()));
             return true;
         }
         return false;
     }
+	
+	
 
     @Override
     public boolean codeBlock2(Line line) {
-        return find(Tag.CODE_BLOCK_2, line);
+		if(find(Tag.CODE_BLOCK_2,line)){
+			LineQueue queue=queueProvider.getQueue();
+			LineQueue nextQueue=queue.copy();
+			boolean find=false;
+			while(nextQueue.nextLine()!=null){
+				if(find(Tag.CODE_BLOCK_2,nextQueue.nextLine())){
+					nextQueue.next();
+					removePrevBlankLine(nextQueue);
+					removeNextBlankLine(queue);
+					find=true;
+					break;
+				}
+				nextQueue.next();
+			}
+			if(find){
+				StringBuilder sb=new StringBuilder();
+				queue.next();
+				queue.removePrevLine();
+				while(queue.currLine()!=nextQueue.currLine()){
+					sb.append(queue.currLine().getSource()).append('\n');
+					queue.next();
+					queue.removePrevLine();
+				}
+				removeNextBlankLine(nextQueue);
+				nextQueue.currLine().setType(Line.LINE_TYPE_CODE_BLOCK_2);
+				nextQueue.currLine().setStyle(styleBuilder.codeBlock(sb.toString()));
+				return true;
+			}else{
+				return false;
+			}
+		}
+        return false;
     }
 
     @Override
@@ -721,8 +761,6 @@ public class TagHandlerImpl implements TagHandler {
         }
 		Matcher m=obtain(tag,line);
 		return m!=null&&m.find();
-//        Pattern pattern = patterns.get(tag);
-//        return pattern != null && pattern.matcher(line).find();
     }
 
     @Override
@@ -770,6 +808,41 @@ public class TagHandlerImpl implements TagHandler {
     public void setQueueProvider(QueueProvider queueProvider) {
         this.queueProvider = queueProvider;
     }
+	
+	
+	
+	@Override
+	public CharSequence get(int tag, Line line,int group)
+	{
+		return get(tag,line.getSource(),group);
+	}
+
+	@Override
+	public CharSequence get(int tag, CharSequence line,int group)
+	{
+		Matcher m=obtain(tag,line);
+		return m.find()?m.group(group):null;
+	}
+	
+	private void removeNextBlankLine(LineQueue queue){
+		while(queue.nextLine()!=null){
+			if(find(Tag.BLANK,queue.nextLine())){
+				queue.removeNextLine();
+			}else{
+				return;
+			}
+		}
+	}
+	
+	private void removePrevBlankLine(LineQueue queue){
+		while(queue.prevLine()!=null){
+			if(find(Tag.BLANK,queue.prevLine())){
+				queue.removePrevLine();
+			}else{
+				return;
+			}
+		}
+	}
 
 
 }

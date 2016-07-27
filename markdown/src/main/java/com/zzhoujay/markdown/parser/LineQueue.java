@@ -90,13 +90,15 @@ public class LineQueue {
     }
 
     public void removeNextLine() {
-        if (curr.nextLine() == last) {
-            curr.removeNext();
-            last = curr;
-        } else {
-            curr.removeNext();
-        }
+        curr.removeNext();
     }
+	
+	public void removePrevLine(){
+		if(root==curr.prevLine()){
+			root=curr;
+		}
+		curr.removePrev();
+	}
 
     public LineQueue copy() {
         return new LineQueue(this, curr);
@@ -113,5 +115,22 @@ public class LineQueue {
     public void reset() {
         curr = root;
     }
+
+	@Override
+	public String toString()
+	{
+		Line t=root;
+		StringBuilder sb=new StringBuilder();
+		int len=0;
+		while(t!=null){
+			sb.append(t.toString()+",");
+			t=t.nextLine();
+			len++;
+		}
+		return "{"+sb.toString()+"}";
+		
+	}
+	
+	
 
 }

@@ -4,7 +4,7 @@ package com.zzhoujay.markdown.parser;
  * Created by zhou on 16-7-10.
  * TagHandler
  */
-public interface TagHandler extends TagFinder,QueueConsumer {
+public interface TagHandler extends TagFinder,QueueConsumer,TagGetter {
 
     boolean h(Line line);
 

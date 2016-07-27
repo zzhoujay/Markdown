@@ -46,6 +46,8 @@ public interface StyleBuilder {
     SpannableStringBuilder ol2(CharSequence charSequence,int level, int index);
 
     SpannableStringBuilder codeBlock(CharSequence... charSequence);
+	
+	SpannableStringBuilder codeBlock(String code);
 
     SpannableStringBuilder gap();
 

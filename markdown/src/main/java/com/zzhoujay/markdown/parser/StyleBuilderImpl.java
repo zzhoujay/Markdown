@@ -188,6 +188,11 @@ public class StyleBuilderImpl implements StyleBuilder {
         return builder;
 //        return new SpannableStringBuilder(String.format("codeBlock1:{%s}", charSequence));
     }
+	
+	@Override
+    public SpannableStringBuilder codeBlock(String code) {
+        return codeBlock(code.split("\n"));
+    }
 
     @Override
     public SpannableStringBuilder link(CharSequence title, String link, String hint) {
