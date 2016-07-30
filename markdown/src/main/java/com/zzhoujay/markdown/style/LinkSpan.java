@@ -6,6 +6,7 @@ import android.text.style.URLSpan;
 
 /**
  * Created by zhou on 16-7-2.
+ * 链接Span
  */
 public class LinkSpan extends URLSpan {
 

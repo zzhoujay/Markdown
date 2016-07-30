@@ -8,6 +8,7 @@ import android.text.style.ReplacementSpan;
 
 /**
  * Created by zhou on 16-7-2.
+ * 代码Span
  */
 public class CodeSpan extends ReplacementSpan {
 

@@ -43,12 +43,11 @@ RichText.fromMarkdown(markdown).into(textView);
 
 ### Use in Gradle
 
-`compile 'com.zzhoujay.markdown:markdown:0.0.4'`
+`compile 'com.zzhoujay.markdown:markdown:0.0.5'`
 
 
 ### 已知问题
 
-* ~~引用块内不支持Setext-style的标题（后续会想办法修复~~ (已修复)
 * 暂不支持使用反斜杠 \\ 转义
 * 不支持表格
 
@@ -56,5 +55,6 @@ RichText.fromMarkdown(markdown).into(textView);
 ### 后续计划
 
 * 修复一些已知问题
+* 加入多选框支持
 
 _by zzhoujay_

@@ -9,14 +9,13 @@ import com.zzhoujay.markdown.style.CodeSpan;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import android.util.*;
 
 /**
  * Created by zhou on 16-7-10.
  */
-public class TagHandlerImpl implements TagHandler{
-    
-	private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+\\s*$").matcher("");
+public class TagHandlerImpl implements TagHandler {
+
+    private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+\\s*$").matcher("");
     private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+\\s*$").matcher("");
 
     private static final Matcher matcherH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?").matcher("");
@@ -58,12 +57,11 @@ public class TagHandlerImpl implements TagHandler{
     private static final Matcher matcherGap = Pattern.compile("^\\s*([-*]\\s*){3,}$").matcher("");
 
 
-	private static final SparseArray<Matcher> matchers=new SparseArray<>();
+    private static final SparseArray<Matcher> matchers = new SparseArray<>();
 
     static {
 
-		
-		matchers.put(Tag.CODE_BLOCK_1, matcherCodeBlock);
+        matchers.put(Tag.CODE_BLOCK_1, matcherCodeBlock);
         matchers.put(Tag.CODE_BLOCK_2, matcherCodeBlock2);
         matchers.put(Tag.H1, matcherH1);
         matchers.put(Tag.H2, matcherH2);
@@ -92,7 +90,7 @@ public class TagHandlerImpl implements TagHandler{
         matchers.put(Tag.GAP, matcherGap);
         matchers.put(Tag.H1_2, matcherH1_2);
         matchers.put(Tag.H2_2, matcherH2_2);
-		matchers.put(Tag.CODE,matcherCode);
+        matchers.put(Tag.CODE, matcherCode);
     }
 
     private StyleBuilder styleBuilder;
@@ -114,8 +112,8 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h1(Line line) {
-        Matcher matcher = obtain(Tag.H1,line.getSource());
-        if (matcher!=null&&matcher.find()) {
+        Matcher matcher = obtain(Tag.H1, line.getSource());
+        if (matcher != null && matcher.find()) {
             line.setType(Line.LINE_TYPE_H1);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
             inline(line);
@@ -127,7 +125,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h2(Line line) {
-        Matcher matcher = obtain(Tag.H2,line.getSource());
+        Matcher matcher = obtain(Tag.H2, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H2);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -140,7 +138,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h3(Line line) {
-        Matcher matcher = obtain(Tag.H3,line.getSource());
+        Matcher matcher = obtain(Tag.H3, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H3);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -154,7 +152,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h4(Line line) {
-        Matcher matcher = obtain(Tag.H4,line.getSource());
+        Matcher matcher = obtain(Tag.H4, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H4);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -168,7 +166,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h5(Line line) {
-        Matcher matcher = obtain(Tag.H5,line.getSource());
+        Matcher matcher = obtain(Tag.H5, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H5);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -182,7 +180,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean h6(Line line) {
-        Matcher matcher = obtain(Tag.H6,line.getSource());
+        Matcher matcher = obtain(Tag.H6, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_H6);
             line.setStyle(SpannableStringBuilder.valueOf(matcher.group(1)));
@@ -199,7 +197,7 @@ public class TagHandlerImpl implements TagHandler{
         LineQueue queue = queueProvider.getQueue();
         line = line.get();
 
-        Matcher matcher = obtain(Tag.QUOTA,line.getSource());
+        Matcher matcher = obtain(Tag.QUOTA, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_QUOTA);
             Line child = line.createChild(matcher.group(1));
@@ -217,11 +215,27 @@ public class TagHandlerImpl implements TagHandler{
                 prev.copyToNext();
                 queue.prevLine().setStyle(style);
             }
-            if (!(quota(child) || ul(child) || ol(child) || h(child))) {
+            if (quota(child) || ul(child) || ol(child) || h(child)) {
+                if (child.getHandle() == Line.HANDLE_BY_ROOT) {
+                    if (line.parentLine() == null) {
+                        if (child.getData() == Line.LINE_TYPE_UL) {
+                            line.setStyle(styleBuilder.ul2(child.getStyle(), findCount(Tag.QUOTA, line, 1) - 1, child.getAttr()));
+                        } else {
+                            line.setStyle(styleBuilder.ol2(child.getStyle(), findCount(Tag.QUOTA, line, 1) - 1, child.getAttr(), child.getCount()));
+                        }
+                    } else {
+                        line.setData(child.getData());
+                        line.setStyle(child.getStyle());
+                        line.setAttr(child.getAttr());
+                        line.setCount(child.getCount());
+                        line.setHandle(Line.HANDLE_BY_ROOT);
+                    }
+                    return true;
+                }
+            } else {
                 child.setStyle(SpannableStringBuilder.valueOf(child.getSource()));
                 inline(child);
             }
-
 
             line.setStyle(styleBuilder.quota(child.getStyle()));
             return true;
@@ -235,7 +249,7 @@ public class TagHandlerImpl implements TagHandler{
     }
 
     private boolean ul(Line line, int level) {
-        Matcher matcher = obtain(Tag.UL,line.getSource());
+        Matcher matcher = obtain(Tag.UL, line.getSource());
         if (matcher.find()) {
             line.setType(Line.LINE_TYPE_UL);
             Line line1 = line.createChild(matcher.group(1));
@@ -243,9 +257,15 @@ public class TagHandlerImpl implements TagHandler{
 
             Line parent = line.parentLine();
             LineQueue queue = queueProvider.getQueue();
+            Line root = queue.currLine();
             Line prev = line.prevLine();
 
-            boolean normal = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
+            boolean inQuota = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
+            if (inQuota) {
+                line.setHandle(Line.HANDLE_BY_ROOT);
+                line.setData(Line.LINE_TYPE_UL);
+            }
+
 
             if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)) {
                 if (level > 0) {
@@ -260,19 +280,30 @@ public class TagHandlerImpl implements TagHandler{
                 }
 
             }
+            if (inQuota) {
+                line.setStyle(" ");
+            } else {
+                line.setStyle(styleBuilder.ul(" ", line.getAttr()));
+            }
             if (find(Tag.UL, line1)) {
                 int nextLevel = line.getAttr() + 1;
                 line1.unAttachFromParent();
-                line.setStyle(normal ? styleBuilder.ul2(" ", line.getAttr()) : styleBuilder.ul(" ", line.getAttr()));
 
                 if (parent != null) {
                     Line p = parent.copyToNext();
                     p.addChild(line1);
                     queue.next();
                     ul(line1, nextLevel);
-                    while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
-                        p.setStyle(styleBuilder.quota(line1.getStyle()));
-                        p = p.parentLine();
+                    if (inQuota) {
+                        while (p.parentLine() != null) {
+                            p = p.parentLine();
+                        }
+                        p.setStyle(styleBuilder.ul2(line1.getStyle(), findCount(Tag.QUOTA, p, 1) - 1, line1.getAttr()));
+                    } else {
+                        while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
+                            p.setStyle(styleBuilder.quota(line1.getStyle()));
+                            p = p.parentLine();
+                        }
                     }
                 } else {
                     line.addNext(line1);
@@ -285,17 +316,24 @@ public class TagHandlerImpl implements TagHandler{
             if (find(Tag.OL, line1)) {
                 int nextLevel = line.getAttr() + 1;
                 line1.unAttachFromParent();
-                line.setStyle(normal ? styleBuilder.ul2(" ", line.getAttr()) : styleBuilder.ul(" ", line.getAttr()));
 
                 if (parent != null) {
                     Line p = parent.copyToNext();
                     p.addChild(line1);
                     queue.next();
                     ol(line1, nextLevel);
-                    while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
-                        p.setStyle(styleBuilder.quota(line1.getStyle()));
-                        p = p.parentLine();
+                    if (inQuota) {
+                        while (p.parentLine() != null) {
+                            p = p.parentLine();
+                        }
+                        p.setStyle(styleBuilder.ol2(line1.getStyle(), findCount(Tag.QUOTA, p, 1) - 1, line1.getAttr(), line1.getCount()));
+                    } else {
+                        while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
+                            p.setStyle(styleBuilder.quota(line1.getStyle()));
+                            p = p.parentLine();
+                        }
                     }
+
                 } else {
                     line.addNext(line1);
                     queue.next();
@@ -319,7 +357,9 @@ public class TagHandlerImpl implements TagHandler{
             }
             line.setStyle(builder);
             inline(line);
-            line.setStyle(normal ? styleBuilder.ul2(line.getStyle(), line.getAttr()) : styleBuilder.ul(line.getStyle(), line.getAttr()));
+            if (!inQuota) {
+                line.setStyle(styleBuilder.ul(line.getStyle(), line.getAttr()));
+            }
             return true;
         }
         return false;
@@ -331,9 +371,8 @@ public class TagHandlerImpl implements TagHandler{
     }
 
     private boolean ol(Line line, int level) {
-        Matcher matcher = obtain(Tag.OL,line.getSource());
+        Matcher matcher = obtain(Tag.OL, line.getSource());
         if (matcher.find()) {
-            int index = 1;
             line.setType(Line.LINE_TYPE_OL);
             Line line1 = new Line(matcher.group(1));
             line.setAttr(0);
@@ -341,8 +380,17 @@ public class TagHandlerImpl implements TagHandler{
             Line parent = line.parentLine();
             LineQueue queue = queueProvider.getQueue();
             Line prev = line.prevLine();
+            if (prev != null) {
+                line.setCount(prev.getCount() + 1);
+            } else {
+                line.setCount(1);
+            }
 
-            boolean normal = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
+            boolean inQuota = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
+            if (inQuota) {
+                line.setHandle(Line.HANDLE_BY_ROOT);
+                line.setData(Line.LINE_TYPE_OL);
+            }
 
             if (prev != null && (prev.getType() == Line.LINE_TYPE_OL || prev.getType() == Line.LINE_TYPE_UL)) {
                 if (level > 0) {
@@ -357,19 +405,30 @@ public class TagHandlerImpl implements TagHandler{
                 }
 
             }
+            if (inQuota) {
+                line.setStyle(" ");
+            } else {
+                line.setStyle(styleBuilder.ol(" ", line.getAttr(), line.getCount()));
+            }
             if (find(Tag.UL, line1)) {
                 int nextLevel = line.getAttr() + 1;
                 line1.unAttachFromParent();
-                line.setStyle(normal ? styleBuilder.ol2(" ", line.getAttr(), index) : styleBuilder.ol(" ", line.getAttr(), index));
 
                 if (parent != null) {
                     Line p = parent.copyToNext();
                     p.addChild(line1);
                     queue.next();
                     ul(line1, nextLevel);
-                    while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
-                        p.setStyle(styleBuilder.quota(line1.getStyle()));
-                        p = p.parentLine();
+                    if (inQuota) {
+                        while (p.parentLine() != null) {
+                            p = p.parentLine();
+                        }
+                        p.setStyle(styleBuilder.ul2(line1.getStyle(), findCount(Tag.QUOTA, p, 1) - 1, line1.getAttr()));
+                    } else {
+                        while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
+                            p.setStyle(styleBuilder.quota(line1.getStyle()));
+                            p = p.parentLine();
+                        }
                     }
                 } else {
                     line.addNext(line1);
@@ -382,16 +441,22 @@ public class TagHandlerImpl implements TagHandler{
             if (find(Tag.OL, line1)) {
                 int nextLevel = line.getAttr() + 1;
                 line1.unAttachFromParent();
-                line.setStyle(normal ? styleBuilder.ol2(" ", line.getAttr(), index) : styleBuilder.ol(" ", line.getAttr(), index));
 
                 if (parent != null) {
                     Line p = parent.copyToNext();
                     p.addChild(line1);
                     queue.next();
                     ol(line1, nextLevel);
-                    while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
-                        p.setStyle(styleBuilder.quota(line1.getStyle()));
-                        p = p.parentLine();
+                    if (inQuota) {
+                        while (p.parentLine() != null) {
+                            p = p.parentLine();
+                        }
+                        p.setStyle(styleBuilder.ol2(line1.getStyle(), findCount(Tag.QUOTA, p, 1) - 1, line1.getAttr(), line1.getCount()));
+                    } else {
+                        while (p != null && p.getType() == Line.LINE_TYPE_QUOTA) {
+                            p.setStyle(styleBuilder.quota(line1.getStyle()));
+                            p = p.parentLine();
+                        }
                     }
                 } else {
                     line.addNext(line1);
@@ -417,8 +482,9 @@ public class TagHandlerImpl implements TagHandler{
             line.setStyle(builder);
             inline(line);
 
-            line.setCount(index);
-            line.setStyle(normal ? styleBuilder.ol2(line.getStyle(), line.getAttr(), index) : styleBuilder.ol(line.getStyle(), line.getAttr(), index));
+            if (!inQuota) {
+                line.setStyle(styleBuilder.ul(line.getStyle(), line.getAttr()));
+            }
             return true;
         }
         return false;
@@ -427,7 +493,7 @@ public class TagHandlerImpl implements TagHandler{
     @Override
     public boolean gap(Line line) {
         line = line.get();
-        Matcher matcher = obtain(Tag.GAP,line.getSource());
+        Matcher matcher = obtain(Tag.GAP, line.getSource());
         if (matcher.matches()) {
             line.setType(Line.LINE_TYPE_GAP);
             line.setStyle(styleBuilder.gap());
@@ -440,7 +506,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean em(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.EM,builder);
+        Matcher matcher = obtain(Tag.EM, builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -460,7 +526,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean italic(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.ITALIC,builder);
+        Matcher matcher = obtain(Tag.ITALIC, builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -480,7 +546,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean emItalic(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.EM_ITALIC,builder);
+        Matcher matcher = obtain(Tag.EM_ITALIC, builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -500,7 +566,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean code(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.CODE,builder);
+        Matcher matcher = obtain(Tag.CODE, builder);
         if (matcher.find()) {
             String content = matcher.group(3);
             builder.delete(matcher.start(1), matcher.end(1));
@@ -515,7 +581,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean email(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.EMAIL,builder);
+        Matcher matcher = obtain(Tag.EMAIL, builder);
         if (matcher.find()) {
             SpannableStringBuilder sb = (SpannableStringBuilder) builder.subSequence(matcher.start(2), matcher.end(2));
             builder.delete(matcher.start(1), matcher.end(1));
@@ -530,7 +596,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean delete(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.DELETE,builder);
+        Matcher matcher = obtain(Tag.DELETE, builder);
         while (matcher.find()) {
             int start = matcher.start(1);
             int end = matcher.end(1);
@@ -550,7 +616,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean autoLink(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.AUTO_LINK,builder);
+        Matcher matcher = obtain(Tag.AUTO_LINK, builder);
         while (matcher.find()) {
             String content = matcher.group();
             builder.delete(matcher.start(), matcher.end());
@@ -563,7 +629,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean link(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.LINK,builder);
+        Matcher matcher = obtain(Tag.LINK, builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String link = matcher.group(3);
@@ -580,7 +646,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean link2(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.LINK2,builder);
+        Matcher matcher = obtain(Tag.LINK2, builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String id = matcher.group(3);
@@ -597,7 +663,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean linkId(String line) {
-        Matcher matcher = obtain(Tag.LINK_ID,line);
+        Matcher matcher = obtain(Tag.LINK_ID, line);
         if (matcher.find()) {
             String id = matcher.group(1);
             String link = matcher.group(2);
@@ -612,7 +678,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean image(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.IMAGE,builder);
+        Matcher matcher = obtain(Tag.IMAGE, builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String link = matcher.group(3);
@@ -629,7 +695,7 @@ public class TagHandlerImpl implements TagHandler{
     public boolean image2(Line line) {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
-        Matcher matcher = obtain(Tag.IMAGE2,builder);
+        Matcher matcher = obtain(Tag.IMAGE2, builder);
         if (matcher.find()) {
             String title = matcher.group(2);
             String id = matcher.group(3);
@@ -646,7 +712,7 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean imageId(String line) {
-        Matcher matcher = obtain(Tag.IMAGE_ID,line);
+        Matcher matcher = obtain(Tag.IMAGE_ID, line);
         if (matcher.find()) {
             String id = matcher.group(1);
             String link = matcher.group(2);
@@ -659,77 +725,76 @@ public class TagHandlerImpl implements TagHandler{
 
     @Override
     public boolean codeBlock1(Line line) {
-        Matcher matcher = obtain(Tag.CODE_BLOCK_1,line.getSource());
+        Matcher matcher = obtain(Tag.CODE_BLOCK_1, line.getSource());
         if (matcher.find()) {
             String content = matcher.group(2);
             LineQueue queue = queueProvider.getQueue();
             Line next = queue.nextLine();
             StringBuilder sb = new StringBuilder(content);
-			StringBuilder bsb=new StringBuilder();
-			
-			while(next!=null){
-				CharSequence r=get(Tag.CODE_BLOCK_1,next,2);
-				if(r==null){
-					if(find(Tag.BLANK,next)){
-						bsb.append(' ').append('\n');
-					}else{
-						break;
-					}
-				}else{
-					if(bsb.length()!=0){
-						sb.append(bsb).append(r);
-						bsb.delete(0,sb.length());
-					}else{
-						sb.append('\n').append(r);
-					}
-				}
-				queue.removeNextLine();
-				next=queue.nextLine();
-			}
-			
-            
+            StringBuilder bsb = new StringBuilder();
+
+            while (next != null) {
+                CharSequence r = get(Tag.CODE_BLOCK_1, next, 2);
+                if (r == null) {
+                    if (find(Tag.BLANK, next)) {
+                        bsb.append(' ').append('\n');
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (bsb.length() != 0) {
+                        sb.append(bsb).append(r);
+                        bsb.delete(0, sb.length());
+                    } else {
+                        sb.append('\n').append(r);
+                    }
+                }
+                queue.removeNextLine();
+                next = queue.nextLine();
+            }
+
+
             line.setType(Line.LINE_TYPE_CODE_BLOCK_1);
             line.setStyle(styleBuilder.codeBlock(sb.toString()));
             return true;
         }
         return false;
     }
-	
-	
+
 
     @Override
     public boolean codeBlock2(Line line) {
-		if(find(Tag.CODE_BLOCK_2,line)){
-			LineQueue queue=queueProvider.getQueue();
-			LineQueue nextQueue=queue.copy();
-			boolean find=false;
-			while(nextQueue.nextLine()!=null){
-				if(find(Tag.CODE_BLOCK_2,nextQueue.nextLine())){
-					nextQueue.next();
-					removePrevBlankLine(nextQueue);
-					removeNextBlankLine(queue);
-					find=true;
-					break;
-				}
-				nextQueue.next();
-			}
-			if(find){
-				StringBuilder sb=new StringBuilder();
-				queue.next();
-				queue.removePrevLine();
-				while(queue.currLine()!=nextQueue.currLine()){
-					sb.append(queue.currLine().getSource()).append('\n');
-					queue.next();
-					queue.removePrevLine();
-				}
-				removeNextBlankLine(nextQueue);
-				nextQueue.currLine().setType(Line.LINE_TYPE_CODE_BLOCK_2);
-				nextQueue.currLine().setStyle(styleBuilder.codeBlock(sb.toString()));
-				return true;
-			}else{
-				return false;
-			}
-		}
+        if (find(Tag.CODE_BLOCK_2, line)) {
+            LineQueue queue = queueProvider.getQueue();
+            LineQueue nextQueue = queue.copy();
+            boolean find = false;
+            while (nextQueue.nextLine() != null) {
+                if (find(Tag.CODE_BLOCK_2, nextQueue.nextLine())) {
+                    nextQueue.next();
+                    removePrevBlankLine(nextQueue);
+                    removeNextBlankLine(queue);
+                    find = true;
+                    break;
+                }
+                nextQueue.next();
+            }
+            if (find) {
+                StringBuilder sb = new StringBuilder();
+                queue.next();
+                queue.removePrevLine();
+                while (queue.currLine() != nextQueue.currLine()) {
+                    sb.append(queue.currLine().getSource()).append('\n');
+                    queue.next();
+                    queue.removePrevLine();
+                }
+                removeNextBlankLine(nextQueue);
+                nextQueue.currLine().setType(Line.LINE_TYPE_CODE_BLOCK_2);
+                nextQueue.currLine().setStyle(styleBuilder.codeBlock(sb.toString()));
+                return true;
+            } else {
+                return false;
+            }
+        }
         return false;
     }
 
@@ -759,8 +824,8 @@ public class TagHandlerImpl implements TagHandler{
         if (line == null) {
             return false;
         }
-		Matcher m=obtain(tag,line);
-		return m!=null&&m.find();
+        Matcher m = obtain(tag, line);
+        return m != null && m.find();
     }
 
     @Override
@@ -773,15 +838,15 @@ public class TagHandlerImpl implements TagHandler{
         if (line == null) {
             return 0;
         }
-        
-            Matcher matcher = obtain(tag,line);
-			if(matcher==null){
-				return 0;
-			}
-            if (matcher.find()) {
-                return findCount(tag, matcher.group(group), group) + 1;
-            }
-        
+
+        Matcher matcher = obtain(tag, line);
+        if (matcher == null) {
+            return 0;
+        }
+        if (matcher.find()) {
+            return findCount(tag, matcher.group(group), group) + 1;
+        }
+
         return 0;
     }
 
@@ -796,53 +861,50 @@ public class TagHandlerImpl implements TagHandler{
         }
         return false;
     }
-	
-	private Matcher obtain(int tag,CharSequence src){
-		Matcher m=matchers.get(tag,null);
-		if(m!=null){
-			m.reset(src);
-		}
-		return m;
-	}
+
+    private Matcher obtain(int tag, CharSequence src) {
+        Matcher m = matchers.get(tag, null);
+        if (m != null) {
+            m.reset(src);
+        }
+        return m;
+    }
 
     public void setQueueProvider(QueueProvider queueProvider) {
         this.queueProvider = queueProvider;
     }
-	
-	
-	
-	@Override
-	public CharSequence get(int tag, Line line,int group)
-	{
-		return get(tag,line.getSource(),group);
-	}
 
-	@Override
-	public CharSequence get(int tag, CharSequence line,int group)
-	{
-		Matcher m=obtain(tag,line);
-		return m.find()?m.group(group):null;
-	}
-	
-	private void removeNextBlankLine(LineQueue queue){
-		while(queue.nextLine()!=null){
-			if(find(Tag.BLANK,queue.nextLine())){
-				queue.removeNextLine();
-			}else{
-				return;
-			}
-		}
-	}
-	
-	private void removePrevBlankLine(LineQueue queue){
-		while(queue.prevLine()!=null){
-			if(find(Tag.BLANK,queue.prevLine())){
-				queue.removePrevLine();
-			}else{
-				return;
-			}
-		}
-	}
+
+    @Override
+    public CharSequence get(int tag, Line line, int group) {
+        return get(tag, line.getSource(), group);
+    }
+
+    @Override
+    public CharSequence get(int tag, CharSequence line, int group) {
+        Matcher m = obtain(tag, line);
+        return m.find() ? m.group(group) : null;
+    }
+
+    private void removeNextBlankLine(LineQueue queue) {
+        while (queue.nextLine() != null) {
+            if (find(Tag.BLANK, queue.nextLine())) {
+                queue.removeNextLine();
+            } else {
+                return;
+            }
+        }
+    }
+
+    private void removePrevBlankLine(LineQueue queue) {
+        while (queue.prevLine() != null) {
+            if (find(Tag.BLANK, queue.prevLine())) {
+                queue.removePrevLine();
+            } else {
+                return;
+            }
+        }
+    }
 
 
 }

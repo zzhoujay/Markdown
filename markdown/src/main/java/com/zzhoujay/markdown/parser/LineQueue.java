@@ -5,9 +5,9 @@ package com.zzhoujay.markdown.parser;
  */
 public class LineQueue {
 
-    private Line root;
-    private Line curr;
-    private Line last;
+    private Line root; // 根节点
+    private Line curr; // 当前节点
+    private Line last; // 尾节点
 
     public LineQueue(Line root) {
         this.root = root;
@@ -92,13 +92,13 @@ public class LineQueue {
     public void removeNextLine() {
         curr.removeNext();
     }
-	
-	public void removePrevLine(){
-		if(root==curr.prevLine()){
-			root=curr;
-		}
-		curr.removePrev();
-	}
+
+    public void removePrevLine() {
+        if (root == curr.prevLine()) {
+            root = curr;
+        }
+        curr.removePrev();
+    }
 
     public LineQueue copy() {
         return new LineQueue(this, curr);
@@ -116,21 +116,19 @@ public class LineQueue {
         curr = root;
     }
 
-	@Override
-	public String toString()
-	{
-		Line t=root;
-		StringBuilder sb=new StringBuilder();
-		int len=0;
-		while(t!=null){
-			sb.append(t.toString()+",");
-			t=t.nextLine();
-			len++;
-		}
-		return "{"+sb.toString()+"}";
-		
-	}
-	
-	
+    @Override
+    public String toString() {
+        Line t = root;
+        StringBuilder sb = new StringBuilder();
+        int len = 0;
+        while (t != null) {
+            sb.append(t.toString()).append(",");
+            t = t.nextLine();
+            len++;
+        }
+        return "{" + sb.toString() + "}";
+
+    }
+
 
 }

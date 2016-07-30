@@ -1,7 +1,5 @@
 package com.zzhoujay.markdown.parser;
 
-import android.support.annotation.IntDef;
-
 /**
  * Created by zhou on 16-7-10.
  */
@@ -37,6 +35,6 @@ public class Tag {
     public static final int GAP = 27;
     public static final int H1_2 = 28;
     public static final int H2_2 = 29;
-	public static final int CODE=30;
+    public static final int CODE = 30;
 
 }

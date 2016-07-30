@@ -4,6 +4,7 @@ import android.text.SpannableStringBuilder;
 
 /**
  * Created by zhou on 16-6-28.
+ * markdown各种样式的构建器
  */
 public interface StyleBuilder {
 
@@ -37,17 +38,17 @@ public interface StyleBuilder {
 
     SpannableStringBuilder quota(CharSequence charSequence);
 
-    SpannableStringBuilder ul(CharSequence charSequence,int level);
+    SpannableStringBuilder ul(CharSequence charSequence, int level);
 
-    SpannableStringBuilder ol(CharSequence charSequence,int level, int index);
+    SpannableStringBuilder ol(CharSequence charSequence, int level, int index);
 
-    SpannableStringBuilder ul2(CharSequence charSequence,int level);
+    SpannableStringBuilder ul2(CharSequence charSequence, int quotaLevel, int bulletLevel);
 
-    SpannableStringBuilder ol2(CharSequence charSequence,int level, int index);
+    SpannableStringBuilder ol2(CharSequence charSequence, int quotaLevel, int bulletLevel, int index);
 
     SpannableStringBuilder codeBlock(CharSequence... charSequence);
-	
-	SpannableStringBuilder codeBlock(String code);
+
+    SpannableStringBuilder codeBlock(String code);
 
     SpannableStringBuilder gap();
 

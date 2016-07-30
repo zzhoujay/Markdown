@@ -206,20 +206,24 @@ class MarkDownParser {
             Line curr = queue.currLine();
             Line prev = queue.prevLine();
             Line next = queue.nextLine();
-            builder.append(curr.getStyle()).append('\n');
+            builder.append(curr.getStyle());
+            if(next==null){
+                break;
+            }
+            builder.append('\n');
             switch (curr.getType()) {
                 case Line.LINE_TYPE_QUOTA:
-                    if (next != null && next.getType() != Line.LINE_TYPE_QUOTA) {
+                    if (next.getType() != Line.LINE_TYPE_QUOTA) {
                         builder.append('\n');
                     }
                     break;
                 case Line.LINE_TYPE_UL:
-                    if (next != null && next.getType() == Line.LINE_TYPE_UL)
+                    if (next.getType() == Line.LINE_TYPE_UL)
                         builder.append(listMarginBottom());
                     builder.append('\n');
                     break;
                 case Line.LINE_TYPE_OL:
-                    if (next != null && next.getType() == Line.LINE_TYPE_OL) {
+                    if (next.getType() == Line.LINE_TYPE_OL) {
                         builder.append(listMarginBottom());
                     }
                     builder.append('\n');
@@ -231,6 +235,11 @@ class MarkDownParser {
         return builder;
     }
 
+    /**
+     * 从下个Line开始移除空Line
+     * @param queue LineQueue
+     * @return 是否移除了
+     */
     private boolean removeNextBlankLine(LineQueue queue) {
         boolean flag = false;
         while (queue.nextLine() != null) {
@@ -244,6 +253,11 @@ class MarkDownParser {
         return flag;
     }
 
+    /**
+     * 从当前行开始移除空Line
+     * @param queue LineQueue
+     * @return true：移除了Line
+     */
     private boolean removeCurrBlankLine(LineQueue queue) {
         boolean flag = false;
         while (queue.currLine() != null) {

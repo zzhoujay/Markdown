@@ -8,7 +8,8 @@ public interface TagFinder {
 
     /**
      * 检查对应tag是否存在
-     * @param tag Tag Id
+     *
+     * @param tag  Tag Id
      * @param line line
      * @return true：存在，false不存在
      */
@@ -16,7 +17,8 @@ public interface TagFinder {
 
     /**
      * 检查对应tag是否存在
-     * @param tag Tag Id
+     *
+     * @param tag  Tag Id
      * @param line line
      * @return true：存在，false不存在
      */
@@ -24,20 +26,22 @@ public interface TagFinder {
 
     /**
      * 检查对应tag的个数
-     * @param tag tag id
-     * @param line line
+     *
+     * @param tag   tag id
+     * @param line  line
      * @param group group
      * @return 对应tag的次数
      */
-    int findCount(int tag,Line line,int group);
+    int findCount(int tag, Line line, int group);
 
     /**
      * 检查对应tag的个数
-     * @param tag tag id
-     * @param line line
+     *
+     * @param tag   tag id
+     * @param line  line
      * @param group group
      * @return 对应tag的次数
      */
-    int findCount(int tag,String line,int group);
+    int findCount(int tag, String line, int group);
 
 }

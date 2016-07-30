@@ -5,56 +5,41 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
+import android.os.Parcel;
 import android.text.Layout;
 import android.text.Spanned;
-import android.text.style.BulletSpan;
+import android.text.style.QuoteSpan;
 import android.widget.TextView;
 
 import com.zzhoujay.markdown.util.NumberKit;
 
 /**
- * Created by zhou on 16-6-25.
- * 列表Span
+ * Created by zhou on 16-7-30.
  */
-public class MarkDownBulletSpan extends BulletSpan {
+public class QuotaBulletSpan extends QuoteSpan {
+
     private static final int tab = 40;
     private static final int mGapWidth = 40;
     private static final int BULLET_RADIUS = 6;
 
-    private final boolean mWantColor;
-    private final int mColor;
-    private final String index;
-    private int level = 0;
-    private int margin;
+
+    private static final int STRIPE_WIDTH = 15;
+    private static final int GAP_WIDTH = 40;
 
     private static Path circleBulletPath = null;
     private static Path rectBulletPath = null;
 
-
-    public static final int STANDARD_GAP_WIDTH = 2;
+    private final String index;
+    private int level = 0;
+    private int bulletColor;
+    private int margin;
     private TextView textView;
+    private int quotaLevel;
 
-    public MarkDownBulletSpan(int l, int color, int pointIndex, TextView textView) {
-        super(mGapWidth, color);
-        level = l;
-        if (pointIndex > 0) {
-            if (level == 1) {
-                this.index = NumberKit.toRomanNumerals(pointIndex);
-            } else if (level >= 2) {
-                this.index = NumberKit.toABC(pointIndex - 1);
-            } else {
-                this.index = pointIndex + "";
-            }
-        } else {
-            index = null;
-        }
-        mWantColor = true;
-        mColor = color;
-        this.textView = textView;
-    }
 
-    public MarkDownBulletSpan(int level, int color, int pointIndex) {
-        super(mGapWidth, color);
+    public QuotaBulletSpan(int quotaLevel, int level, int color, int bulletColor, int pointIndex, TextView textView) {
+        super(color);
+        this.quotaLevel = quotaLevel;
         this.level = level;
         if (pointIndex > 0) {
             if (level == 1) {
@@ -67,33 +52,42 @@ public class MarkDownBulletSpan extends BulletSpan {
         } else {
             index = null;
         }
-        mWantColor = true;
-        mColor = color;
+        this.bulletColor = bulletColor;
+        this.textView = textView;
     }
 
-    @Override
-    public int getLeadingMargin(boolean first) {
-        if (index != null) {
-            margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
-        } else {
-            margin = (2 * BULLET_RADIUS + mGapWidth) * (level + 1) + tab;
-        }
-        return margin;
-    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout l) {
+    public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout layout) {
+        // draw quota
+        Paint.Style style = p.getStyle();
+        int color = p.getColor();
+
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(getColor());
+
+        int i = 0;
+        int quotaWidth = STRIPE_WIDTH + GAP_WIDTH;
+
+        while (i <= quotaLevel) {
+            int offset = i * quotaWidth;
+            c.drawRect(x + offset, top, x + offset + dir * STRIPE_WIDTH, bottom, p);
+            i++;
+        }
+
+        p.setStyle(style);
+        p.setColor(color);
+
+        // draw bullet
         if (((Spanned) text).getSpanStart(this) == start) {
             int oldcolor = 0;
-            if (mWantColor) {
-                oldcolor = p.getColor();
-                p.setColor(mColor);
-            }
+            oldcolor = p.getColor();
+            p.setColor(bulletColor);
             if (index != null) {
                 c.drawText(index + '.', x - p.measureText(index) + margin - mGapWidth, baseline, p);
             } else {
-                Paint.Style style = p.getStyle();
+                style = p.getStyle();
                 if (level == 1) {
                     p.setStyle(Paint.Style.STROKE);
                 } else {
@@ -128,9 +122,21 @@ public class MarkDownBulletSpan extends BulletSpan {
 
                 p.setStyle(style);
             }
-            if (mWantColor) {
-                p.setColor(oldcolor);
-            }
+            p.setColor(oldcolor);
         }
+
+
+    }
+
+    @Override
+    public int getLeadingMargin(boolean first) {
+        if (index != null) {
+            margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
+        } else {
+            margin = (2 * BULLET_RADIUS + mGapWidth) * (level + 1) + tab;
+        }
+        int bulletMargin = (quotaLevel + 1) * (STRIPE_WIDTH + GAP_WIDTH);
+        margin += bulletMargin;
+        return margin;
     }
 }
