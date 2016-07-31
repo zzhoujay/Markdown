@@ -42,14 +42,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 long time = System.nanoTime();
-                Spanned spanned = MarkDown.fromMarkdown(stream, new Html.ImageGetter() {
-                    @Override
-                    public Drawable getDrawable(String source) {
-                        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
-                        drawable.setBounds(0, 0, 400, 400);
-                        return drawable;
-                    }
-                }, textView);
+                Spanned spanned = MarkDown.fromMarkdown(stream, null, textView);
                 long useTime = System.nanoTime() - time;
                 Toast.makeText(getApplicationContext(), "use time:" + useTime, Toast.LENGTH_LONG).show();
                 textView.setText(spanned);

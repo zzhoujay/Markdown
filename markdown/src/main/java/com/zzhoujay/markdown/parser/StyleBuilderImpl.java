@@ -1,9 +1,11 @@
 package com.zzhoujay.markdown.parser;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -209,7 +211,15 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder image(CharSequence title, String url, String hint) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(title);
-        ImageSpan imageSpan = new ImageSpan(imageGetter.getDrawable(url));
+        Drawable drawable = null;
+        if (imageGetter != null) {
+            drawable = imageGetter.getDrawable(url);
+        }
+        if (drawable == null) {
+            builder.delete(0,builder.length());
+            return builder;
+        }
+        ImageSpan imageSpan = new ImageSpan(drawable);
         builder.setSpan(imageSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
