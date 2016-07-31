@@ -43,7 +43,7 @@ RichText.fromMarkdown(markdown).into(textView);
 
 ### Use in Gradle
 
-`compile 'com.zzhoujay.markdown:markdown:0.0.5'`
+`compile 'com.zzhoujay.markdown:markdown:0.0.6'`
 
 
 ### 已知问题

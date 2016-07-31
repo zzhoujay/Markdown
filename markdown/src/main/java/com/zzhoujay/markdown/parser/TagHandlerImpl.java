@@ -18,13 +18,13 @@ public class TagHandlerImpl implements TagHandler {
     private static final Matcher matcherH1_2 = Pattern.compile("^\\s*=+\\s*$").matcher("");
     private static final Matcher matcherH2_2 = Pattern.compile("^\\s*-+\\s*$").matcher("");
 
-    private static final Matcher matcherH = Pattern.compile("^\\s*#{1,6}\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH1 = Pattern.compile("^\\s*#\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH2 = Pattern.compile("^\\s*#{2}\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH3 = Pattern.compile("^\\s*#{3}\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH4 = Pattern.compile("^\\s*#{4}\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH5 = Pattern.compile("^\\s*#{5}\\s+([^#]*)(\\s+#)?").matcher("");
-    private static final Matcher matcherH6 = Pattern.compile("^\\s*#{6}\\s+([^#]*)(\\s+#)?").matcher("");
+    private static final Matcher matcherH = Pattern.compile("^\\s*#{1,6}\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH1 = Pattern.compile("^\\s*#\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH2 = Pattern.compile("^\\s*#{2}\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH3 = Pattern.compile("^\\s*#{3}\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH4 = Pattern.compile("^\\s*#{4}\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH5 = Pattern.compile("^\\s*#{5}\\s*([^#]*)(\\s*#)?").matcher("");
+    private static final Matcher matcherH6 = Pattern.compile("^\\s*#{6}\\s*([^#]*)(\\s*#)?").matcher("");
 
     private static final Matcher matcherQuota = Pattern.compile("^\\s{0,3}>\\s(.*)").matcher("");
     private static final Matcher matcherUl = Pattern.compile("^\\s*[*+-]\\s+(.*)").matcher("");
@@ -56,11 +56,9 @@ public class TagHandlerImpl implements TagHandler {
 
     private static final Matcher matcherGap = Pattern.compile("^\\s*([-*]\\s*){3,}$").matcher("");
 
-
-    private static final SparseArray<Matcher> matchers = new SparseArray<>();
+    private static final SparseArray<Matcher> matchers = new SparseArray<>();// matcher缓冲区
 
     static {
-
         matchers.put(Tag.CODE_BLOCK_1, matcherCodeBlock);
         matchers.put(Tag.CODE_BLOCK_2, matcherCodeBlock2);
         matchers.put(Tag.H1, matcherH1);
@@ -107,7 +105,7 @@ public class TagHandlerImpl implements TagHandler {
 
     @Override
     public boolean h(Line line) {
-        return h1(line) || h2(line) || h3(line) || h4(line) || h5(line) || h6(line);
+        return h6(line) || h5(line) || h4(line) || h3(line) || h2(line) || h1(line);
     }
 
     @Override
