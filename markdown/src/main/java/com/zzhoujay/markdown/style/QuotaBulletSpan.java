@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
-import android.os.Parcel;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.QuoteSpan;
@@ -37,14 +36,14 @@ public class QuotaBulletSpan extends QuoteSpan {
     private int quotaLevel;
 
 
-    public QuotaBulletSpan(int quotaLevel, int level, int color, int bulletColor, int pointIndex, TextView textView) {
-        super(color);
+    public QuotaBulletSpan(int quotaLevel, int bulletLevel, int quotaColor, int bulletColor, int pointIndex, TextView textView) {
+        super(quotaColor);
         this.quotaLevel = quotaLevel;
-        this.level = level;
+        this.level = bulletLevel;
         if (pointIndex > 0) {
-            if (level == 1) {
+            if (bulletLevel == 1) {
                 this.index = NumberKit.toRomanNumerals(pointIndex);
-            } else if (level >= 2) {
+            } else if (bulletLevel >= 2) {
                 this.index = NumberKit.toABC(pointIndex - 1);
             } else {
                 this.index = pointIndex + "";
@@ -81,8 +80,8 @@ public class QuotaBulletSpan extends QuoteSpan {
 
         // draw bullet
         if (((Spanned) text).getSpanStart(this) == start) {
-            int oldcolor = 0;
-            oldcolor = p.getColor();
+            int oldColor;
+            oldColor = p.getColor();
             p.setColor(bulletColor);
             if (index != null) {
                 c.drawText(index + '.', x - p.measureText(index) + margin - mGapWidth, baseline, p);
@@ -122,7 +121,7 @@ public class QuotaBulletSpan extends QuoteSpan {
 
                 p.setStyle(style);
             }
-            p.setColor(oldcolor);
+            p.setColor(oldColor);
         }
 
 

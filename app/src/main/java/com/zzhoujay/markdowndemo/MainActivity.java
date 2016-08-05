@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         assert textView != null;
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        final InputStream stream = getResources().openRawResource(R.raw.tt);
+        final InputStream stream = getResources().openRawResource(R.raw.test);
 
         textView.post(new Runnable() {
             @Override

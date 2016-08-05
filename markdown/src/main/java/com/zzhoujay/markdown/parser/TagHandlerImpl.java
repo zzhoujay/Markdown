@@ -255,7 +255,6 @@ public class TagHandlerImpl implements TagHandler {
 
             Line parent = line.parentLine();
             LineQueue queue = queueProvider.getQueue();
-            Line root = queue.currLine();
             Line prev = line.prevLine();
 
             boolean inQuota = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
@@ -378,11 +377,6 @@ public class TagHandlerImpl implements TagHandler {
             Line parent = line.parentLine();
             LineQueue queue = queueProvider.getQueue();
             Line prev = line.prevLine();
-            if (prev != null) {
-                line.setCount(prev.getCount() + 1);
-            } else {
-                line.setCount(1);
-            }
 
             boolean inQuota = queue.currLine().getType() == Line.LINE_TYPE_QUOTA;
             if (inQuota) {
@@ -402,6 +396,11 @@ public class TagHandlerImpl implements TagHandler {
                         line.setAttr(m.length() / 2);
                 }
 
+            }
+            if (prev != null && prev.getType() == Line.LINE_TYPE_OL && prev.getAttr() == line.getAttr()) {
+                line.setCount(prev.getCount() + 1);
+            } else {
+                line.setCount(1);
             }
             if (inQuota) {
                 line.setStyle(" ");
@@ -481,7 +480,7 @@ public class TagHandlerImpl implements TagHandler {
             inline(line);
 
             if (!inQuota) {
-                line.setStyle(styleBuilder.ul(line.getStyle(), line.getAttr()));
+                line.setStyle(styleBuilder.ol(line.getStyle(), line.getAttr(), line.getCount()));
             }
             return true;
         }
@@ -615,12 +614,14 @@ public class TagHandlerImpl implements TagHandler {
         line = line.get();
         SpannableStringBuilder builder = (SpannableStringBuilder) line.getStyle();
         Matcher matcher = obtain(Tag.AUTO_LINK, builder);
+        boolean m = false;
         while (matcher.find()) {
             String content = matcher.group();
             builder.delete(matcher.start(), matcher.end());
             builder.insert(matcher.start(), styleBuilder.link(content, content, ""));
+            m = true;
         }
-        return false;
+        return m;
     }
 
     @Override

@@ -204,7 +204,6 @@ class MarkDownParser {
         SpannableStringBuilder builder = new SpannableStringBuilder();
         do {
             Line curr = queue.currLine();
-            Line prev = queue.prevLine();
             Line next = queue.nextLine();
             builder.append(curr.getStyle());
             if(next==null){

@@ -1,11 +1,9 @@
 package com.zzhoujay.markdown.parser;
 
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -24,7 +22,6 @@ import com.zzhoujay.markdown.style.CodeSpan;
 import com.zzhoujay.markdown.style.EmailSpan;
 import com.zzhoujay.markdown.style.LinkSpan;
 import com.zzhoujay.markdown.style.MarkDownBulletSpan;
-import com.zzhoujay.markdown.style.MarkDownInnerBulletSpan;
 import com.zzhoujay.markdown.style.MarkDownQuoteSpan;
 import com.zzhoujay.markdown.style.QuotaBulletSpan;
 import com.zzhoujay.markdown.style.UnderLineSpan;

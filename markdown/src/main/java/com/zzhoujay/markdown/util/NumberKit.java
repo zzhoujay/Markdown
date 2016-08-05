@@ -10,11 +10,6 @@ public class NumberKit {
     private static final String[] hundreds = {"", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm"};
     private static final String[] thousand = {"", "m", "mm", "mmm"};
 
-    private static final char[][] abc = {{'0', 'a'}, {'1', 'b'}, {'2', 'c'}, {'3', 'd'}, {'4', 'e'}, {'5', 'f'},
-            {'6', 'g'}, {'7', 'h'}, {'8', 'i'}, {'9', 'j'}, {'a', 'k'}, {'b', 'l'}, {'c', 'm'}, {'d', 'n'}, {'e', 'o'},
-            {'f', 'p'}, {'g', 'q'}, {'h', 'r'}, {'i', 's'}, {'j', 't'}, {'k', 'u'}, {'l', 'v'}, {'m', 'w'}, {'n', 'x'},
-            {'o', 'y'}, {'p', 'z'}};
-
     private static final int ROMAN_MAX = 4996;
 
     public static String toRomanNumerals(int num) {
@@ -32,13 +27,24 @@ public class NumberKit {
     }
 
     public static String toABC(int num) {
-        while (num < 0) {
-            num += 26;
+        int a = num / 26;
+        int b = num % 26;
+        StringBuilder sb = new StringBuilder();
+        if (a > 26) {
+            sb.append(toABC(a - 1)).append((char) (b + 'a'));
+        } else if (a == 0) {
+            sb.append((char) (b + 'a'));
+        } else {
+            sb.append((char) (a + 'a')).append((char) (b + 'a'));
         }
-        while (num > 26) {
-            num -= 26;
-        }
-        return String.valueOf((char) (num + 'a'));
+        return sb.toString();
+//        while (num < 0) {
+//            num += 26;
+//        }
+//        while (num > 26) {
+//            num -= 26;
+//        }
+//        return String.valueOf((char) (num + 'a'));
     }
 
 }
