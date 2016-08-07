@@ -207,13 +207,16 @@ public class StyleBuilderImpl implements StyleBuilder {
 
     @Override
     public SpannableStringBuilder image(CharSequence title, String url, String hint) {
+        if (title == null || title.length() == 0) {
+            title = "$";
+        }
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(title);
         Drawable drawable = null;
         if (imageGetter != null) {
             drawable = imageGetter.getDrawable(url);
         }
         if (drawable == null) {
-            builder.delete(0,builder.length());
+            builder.delete(0, builder.length());
             return builder;
         }
         ImageSpan imageSpan = new ImageSpan(drawable);
