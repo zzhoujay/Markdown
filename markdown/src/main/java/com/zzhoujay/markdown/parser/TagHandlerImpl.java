@@ -653,6 +653,8 @@ public class TagHandlerImpl implements TagHandler {
             if (link != null) {
                 builder.delete(matcher.start(1), matcher.end(1));
                 builder.insert(matcher.start(1), styleBuilder.link(title, link.first, link.second));
+            } else {
+                return false;
             }
             link2(line);
             return true;
@@ -702,6 +704,8 @@ public class TagHandlerImpl implements TagHandler {
             if (image != null) {
                 builder.delete(matcher.start(1), matcher.end(1));
                 builder.insert(matcher.start(1), styleBuilder.image(title, image.first, image.second));
+            } else {
+                return false;
             }
             image2(line);
             return true;
