@@ -52,6 +52,7 @@ class MarkDownParser {
 
     /**
      * 收集 String -> LineQueue
+     *
      * @return LineQueue
      * @throws IOException
      */
@@ -75,6 +76,7 @@ class MarkDownParser {
 
     /**
      * 解析LineQueue
+     *
      * @param queue LineQueue
      * @return Spanned
      */
@@ -96,7 +98,7 @@ class MarkDownParser {
                 continue;
             }
             // 合并未换行的Line，并处理一些和Quota嵌套相关的问题
-            boolean isNewLine = tagHandler.find(Tag.NEW_LINE, queue.currLine()) || tagHandler.find(Tag.GAP, queue.currLine());
+            boolean isNewLine = tagHandler.find(Tag.NEW_LINE, queue.currLine()) || tagHandler.find(Tag.GAP, queue.currLine()) || tagHandler.find(Tag.H, queue.currLine());
             if (isNewLine) {
                 if (queue.nextLine() != null)
                     handleQuotaRelevant(queue, true);
@@ -125,6 +127,7 @@ class MarkDownParser {
 
     /**
      * 处理Quota嵌套相关问题
+     *
      * @param queue LineQueue
      * @param onlyH 只处理Title相关的问题
      * @return true：已处理
@@ -196,6 +199,7 @@ class MarkDownParser {
 
     /**
      * 合并LineQueue -> Spanned
+     *
      * @param queue LineQueue
      * @return Spanned
      */
@@ -206,7 +210,7 @@ class MarkDownParser {
             Line curr = queue.currLine();
             Line next = queue.nextLine();
             builder.append(curr.getStyle());
-            if(next==null){
+            if (next == null) {
                 break;
             }
             builder.append('\n');
@@ -236,6 +240,7 @@ class MarkDownParser {
 
     /**
      * 从下个Line开始移除空Line
+     *
      * @param queue LineQueue
      * @return 是否移除了
      */
@@ -254,6 +259,7 @@ class MarkDownParser {
 
     /**
      * 从当前行开始移除空Line
+     *
      * @param queue LineQueue
      * @return true：移除了Line
      */
