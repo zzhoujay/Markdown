@@ -50,11 +50,14 @@ RichText.fromMarkdown(markdown).into(textView);
 
 * 暂不支持使用反斜杠 \\ 转义
 * 不支持表格
+* TextView设置了`setTextIsSelectable(true)`后和长按事件冲突
+* 暂时不支持内嵌html
 
 
 ### 后续计划
 
 * 修复一些已知问题
 * 加入多选框支持
+* 增加对简单html标签的支持
 
 _by zzhoujay_
