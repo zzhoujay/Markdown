@@ -1,6 +1,7 @@
 package com.zzhoujay.markdowndemo;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -36,13 +37,20 @@ public class MainActivity extends AppCompatActivity {
         assert textView != null;
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        final InputStream stream = getResources().openRawResource(R.raw.test);
+        final InputStream stream = getResources().openRawResource(R.raw.dy);
 
         textView.post(new Runnable() {
             @Override
             public void run() {
                 long time = System.nanoTime();
-                Spanned spanned = MarkDown.fromMarkdown(stream, null, textView);
+                Spanned spanned = MarkDown.fromMarkdown(stream, new Html.ImageGetter() {
+                    @Override
+                    public Drawable getDrawable(String source) {
+                        Drawable drawable = new ColorDrawable(Color.LTGRAY);
+                        drawable.setBounds(0, 0, textView.getWidth() - textView.getPaddingLeft() - textView.getPaddingRight(), 400);
+                        return drawable;
+                    }
+                }, textView);
                 long useTime = System.nanoTime() - time;
                 Toast.makeText(getApplicationContext(), "use time:" + useTime, Toast.LENGTH_LONG).show();
                 textView.setText(spanned);
