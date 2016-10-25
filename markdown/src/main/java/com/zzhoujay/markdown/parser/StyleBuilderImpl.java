@@ -26,8 +26,11 @@ import com.zzhoujay.markdown.style.MarkDownQuoteSpan;
 import com.zzhoujay.markdown.style.QuotaBulletSpan;
 import com.zzhoujay.markdown.style.UnderLineSpan;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhou on 16-6-28.
+ * StyleBuilderImpl
  */
 public class StyleBuilderImpl implements StyleBuilder {
 
@@ -44,11 +47,11 @@ public class StyleBuilderImpl implements StyleBuilder {
     private static final float scale_h4 = 1.25f;
     private static final float scale_h5 = 1, scale_h6 = 1;
 
-    private TextView textView;
+    private WeakReference<TextView> textViewWeakReference;
     private Html.ImageGetter imageGetter;
 
     public StyleBuilderImpl(TextView textView, Html.ImageGetter imageGetter) {
-        this.textView = textView;
+        this.textViewWeakReference = new WeakReference<>(textView);
         this.imageGetter = imageGetter;
     }
 
@@ -161,7 +164,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ol(CharSequence charSequence, int level, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, index, textView);
+        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, index, textViewWeakReference.get());
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
@@ -169,7 +172,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ul2(CharSequence charSequence, int quotaLevel, int bulletLevel) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, 0, textView);
+        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, 0, textViewWeakReference.get());
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
@@ -177,7 +180,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ol2(CharSequence charSequence, int quotaLevel, int bulletLevel, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, index, textView);
+        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, index, textViewWeakReference.get());
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
@@ -194,7 +197,7 @@ public class StyleBuilderImpl implements StyleBuilder {
 
     @Override
     public SpannableStringBuilder codeBlock(String code) {
-        return codeBlock(code.split("\n"));
+        return codeBlock((CharSequence[]) code.split("\n"));
     }
 
     @Override
@@ -224,6 +227,7 @@ public class StyleBuilderImpl implements StyleBuilder {
         return builder;
     }
 
+    @SuppressWarnings("WeakerAccess")
     protected SpannableStringBuilder h(CharSequence charSequence, float s, int color) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
         StyleSpan styleSpan = new StyleSpan(Typeface.BOLD);
@@ -254,6 +258,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     }
 
     private int getTextViewRealWidth() {
+        TextView textView = textViewWeakReference.get();
         if (textView != null) {
             return textView.getWidth() - textView.getPaddingRight() - textView.getPaddingLeft();
         }

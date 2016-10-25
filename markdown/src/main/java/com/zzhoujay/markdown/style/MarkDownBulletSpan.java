@@ -5,12 +5,16 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.widget.TextView;
 
 import com.zzhoujay.markdown.util.NumberKit;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Created by zhou on 16-6-25.
@@ -32,7 +36,7 @@ public class MarkDownBulletSpan extends BulletSpan {
 
 
     public static final int STANDARD_GAP_WIDTH = 2;
-    private TextView textView;
+    private WeakReference<TextView> textViewWeakReference;
 
     public MarkDownBulletSpan(int l, int color, int pointIndex, TextView textView) {
         super(mGapWidth, color);
@@ -50,7 +54,7 @@ public class MarkDownBulletSpan extends BulletSpan {
         }
         mWantColor = true;
         mColor = color;
-        this.textView = textView;
+        textViewWeakReference = new WeakReference<>(textView);
     }
 
     public MarkDownBulletSpan(int level, int color, int pointIndex) {
@@ -73,7 +77,8 @@ public class MarkDownBulletSpan extends BulletSpan {
 
     @Override
     public int getLeadingMargin(boolean first) {
-        if (index != null) {
+        TextView textView = textViewWeakReference != null ? textViewWeakReference.get() : null;
+        if (index != null && textView != null) {
             margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
         } else {
             margin = (2 * BULLET_RADIUS + mGapWidth) * (level + 1) + tab;
@@ -133,4 +138,42 @@ public class MarkDownBulletSpan extends BulletSpan {
             }
         }
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte(this.mWantColor ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.mColor);
+        dest.writeString(this.index);
+        dest.writeInt(this.level);
+        dest.writeInt(this.margin);
+        dest.writeParcelable((Parcelable) this.textViewWeakReference.get(), flags);
+    }
+
+    protected MarkDownBulletSpan(Parcel in) {
+        super(in);
+        this.mWantColor = in.readByte() != 0;
+        this.mColor = in.readInt();
+        this.index = in.readString();
+        this.level = in.readInt();
+        this.margin = in.readInt();
+        this.textViewWeakReference = new WeakReference<>((TextView) in.readParcelable(getClass().getClassLoader()));
+    }
+
+    public static final Creator<MarkDownBulletSpan> CREATOR = new Creator<MarkDownBulletSpan>() {
+        @Override
+        public MarkDownBulletSpan createFromParcel(Parcel source) {
+            return new MarkDownBulletSpan(source);
+        }
+
+        @Override
+        public MarkDownBulletSpan[] newArray(int size) {
+            return new MarkDownBulletSpan[size];
+        }
+    };
 }

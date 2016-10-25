@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.zzhoujay.markdown.util.NumberKit;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhou on 16-7-30.
  */
@@ -32,7 +34,7 @@ public class QuotaBulletSpan extends QuoteSpan {
     private int level = 0;
     private int bulletColor;
     private int margin;
-    private TextView textView;
+    private WeakReference<TextView> textViewWeakReference;
     private int quotaLevel;
 
 
@@ -52,7 +54,7 @@ public class QuotaBulletSpan extends QuoteSpan {
             index = null;
         }
         this.bulletColor = bulletColor;
-        this.textView = textView;
+        this.textViewWeakReference = new WeakReference<>(textView);
     }
 
 
@@ -129,7 +131,8 @@ public class QuotaBulletSpan extends QuoteSpan {
 
     @Override
     public int getLeadingMargin(boolean first) {
-        if (index != null) {
+        TextView textView = textViewWeakReference.get();
+        if (index != null && textView != null) {
             margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
         } else {
             margin = (2 * BULLET_RADIUS + mGapWidth) * (level + 1) + tab;
