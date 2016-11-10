@@ -75,6 +75,7 @@ public class MarkDownBulletSpan extends BulletSpan {
         mColor = color;
     }
 
+
     @Override
     public int getLeadingMargin(boolean first) {
         TextView textView = textViewWeakReference != null ? textViewWeakReference.get() : null;
@@ -162,7 +163,7 @@ public class MarkDownBulletSpan extends BulletSpan {
         this.index = in.readString();
         this.level = in.readInt();
         this.margin = in.readInt();
-        this.textViewWeakReference = new WeakReference<>((TextView) in.readParcelable(getClass().getClassLoader()));
+        this.textViewWeakReference = null;
     }
 
     public static final Creator<MarkDownBulletSpan> CREATOR = new Creator<MarkDownBulletSpan>() {

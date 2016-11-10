@@ -7,6 +7,7 @@ import android.text.style.LineHeightSpan;
 
 /**
  * Created by zhou on 16-7-2.
+ * ScaleHeightSpan
  */
 public class ScaleHeightSpan implements LineHeightSpan, Parcelable {
 

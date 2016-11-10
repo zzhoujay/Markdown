@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
+import android.os.Parcel;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.QuoteSpan;
@@ -57,6 +58,15 @@ public class QuotaBulletSpan extends QuoteSpan {
         this.textViewWeakReference = new WeakReference<>(textView);
     }
 
+    public QuotaBulletSpan(Parcel src) {
+        super(src);
+        quotaLevel = src.readInt();
+        level = src.readInt();
+        bulletColor = src.readInt();
+        margin = src.readInt();
+        index = src.readString();
+        textViewWeakReference = null;
+    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -131,6 +141,9 @@ public class QuotaBulletSpan extends QuoteSpan {
 
     @Override
     public int getLeadingMargin(boolean first) {
+        if (textViewWeakReference == null && margin != 0) {
+            return margin;
+        }
         TextView textView = textViewWeakReference.get();
         if (index != null && textView != null) {
             margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
@@ -141,4 +154,26 @@ public class QuotaBulletSpan extends QuoteSpan {
         margin += bulletMargin;
         return margin;
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeInt(quotaLevel);
+        dest.writeInt(level);
+        dest.writeInt(bulletColor);
+        dest.writeInt(margin);
+        dest.writeString(index);
+    }
+
+    public static final Creator<QuotaBulletSpan> CREATOR = new Creator<QuotaBulletSpan>() {
+        @Override
+        public QuotaBulletSpan createFromParcel(Parcel source) {
+            return new QuotaBulletSpan(source);
+        }
+
+        @Override
+        public QuotaBulletSpan[] newArray(int size) {
+            return new QuotaBulletSpan[size];
+        }
+    };
 }

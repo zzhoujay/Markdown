@@ -7,19 +7,17 @@ import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BulletSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.QuoteSpan;
-import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
 import android.widget.TextView;
 
 import com.zzhoujay.markdown.style.CodeBlockSpan;
 import com.zzhoujay.markdown.style.CodeSpan;
 import com.zzhoujay.markdown.style.EmailSpan;
+import com.zzhoujay.markdown.style.FontSpan;
 import com.zzhoujay.markdown.style.LinkSpan;
 import com.zzhoujay.markdown.style.MarkDownBulletSpan;
 import com.zzhoujay.markdown.style.MarkDownQuoteSpan;
@@ -46,6 +44,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     private static final float scale_h3 = 1.5f;
     private static final float scale_h4 = 1.25f;
     private static final float scale_h5 = 1, scale_h6 = 1;
+    private static final float scale_normal = 1;
 
     private WeakReference<TextView> textViewWeakReference;
     private Html.ImageGetter imageGetter;
@@ -58,30 +57,24 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder em(CharSequence charSequence) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(charSequence);
-        StyleSpan styleSpan = new StyleSpan(Typeface.BOLD);
-        builder.setSpan(styleSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(h1_color);
-        builder.setSpan(colorSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        FontSpan fontSpan = new FontSpan(scale_normal, Typeface.BOLD, h1_color);
+        builder.setSpan(fontSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
 
     @Override
     public SpannableStringBuilder italic(CharSequence charSequence) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(charSequence);
-        StyleSpan styleSpan = new StyleSpan(Typeface.ITALIC);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(h1_color);
-        builder.setSpan(colorSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.setSpan(styleSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        FontSpan fontSpan = new FontSpan(scale_normal, Typeface.ITALIC, h1_color);
+        builder.setSpan(fontSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
 
     @Override
     public SpannableStringBuilder emItalic(CharSequence charSequence) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(charSequence);
-        StyleSpan styleSpan = new StyleSpan(Typeface.BOLD_ITALIC);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(h1_color);
-        builder.setSpan(colorSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.setSpan(styleSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        FontSpan fontSpan = new FontSpan(scale_normal, Typeface.BOLD_ITALIC, h1_color);
+        builder.setSpan(fontSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
 
@@ -107,8 +100,6 @@ public class StyleBuilderImpl implements StyleBuilder {
     public SpannableStringBuilder code(CharSequence charSequence) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf(charSequence);
         CodeSpan span = new CodeSpan(code_color);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(h1_color);
-        builder.setSpan(colorSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         builder.setSpan(span, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
@@ -147,9 +138,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     public SpannableStringBuilder quota(CharSequence charSequence) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
         QuoteSpan span = new MarkDownQuoteSpan(quota_color);
-        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(h6_color);
         spannableStringBuilder.setSpan(span, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(foregroundColorSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
 
@@ -188,10 +177,8 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder codeBlock(CharSequence... charSequence) {
         SpannableStringBuilder builder = SpannableStringBuilder.valueOf("$");
-        AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan(14, true);
         CodeBlockSpan codeBlockSpan = new CodeBlockSpan(getTextViewRealWidth(), code_color, charSequence);
         builder.setSpan(codeBlockSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.setSpan(sizeSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
 
@@ -230,24 +217,16 @@ public class StyleBuilderImpl implements StyleBuilder {
     @SuppressWarnings("WeakerAccess")
     protected SpannableStringBuilder h(CharSequence charSequence, float s, int color) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        StyleSpan styleSpan = new StyleSpan(Typeface.BOLD);
-        RelativeSizeSpan sizeSpan = new RelativeSizeSpan(s);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
-        spannableStringBuilder.setSpan(styleSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(sizeSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(colorSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        FontSpan fontSpan = new FontSpan(s, Typeface.BOLD, color);
+        spannableStringBuilder.setSpan(fontSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
 
     private SpannableStringBuilder hWithUnderLine(CharSequence charSequence, float s) {
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(charSequence);
         int start = 0;
-        StyleSpan styleSpan = new StyleSpan(Typeface.BOLD);
-        RelativeSizeSpan sizeSpan = new RelativeSizeSpan(s);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(h1_color);
-        spannableStringBuilder.setSpan(styleSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(sizeSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(colorSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        FontSpan fontSpan = new FontSpan(s, Typeface.BOLD, h1_color);
+        spannableStringBuilder.setSpan(fontSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         Drawable underLine = new ColorDrawable(h_under_line_color);
         UnderLineSpan underLineSpan = new UnderLineSpan(underLine, getTextViewRealWidth(), 5);
         spannableStringBuilder.append('\n');

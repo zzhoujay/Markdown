@@ -45,4 +45,16 @@ public class MarkDownQuoteSpan extends QuoteSpan {
     public int getLeadingMargin(boolean first) {
         return STRIPE_WIDTH + GAP_WIDTH;
     }
+
+    public static final Creator<MarkDownQuoteSpan> CREATOR=new Creator<MarkDownQuoteSpan>() {
+        @Override
+        public MarkDownQuoteSpan createFromParcel(Parcel source) {
+            return new MarkDownQuoteSpan(source);
+        }
+
+        @Override
+        public MarkDownQuoteSpan[] newArray(int size) {
+            return new MarkDownQuoteSpan[size];
+        }
+    };
 }

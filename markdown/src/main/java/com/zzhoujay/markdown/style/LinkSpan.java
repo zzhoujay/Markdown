@@ -23,9 +23,27 @@ public class LinkSpan extends URLSpan {
     }
 
     @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeInt(color);
+    }
+
+    @Override
     public void updateDrawState(TextPaint ds) {
         super.updateDrawState(ds);
         ds.setColor(color);
         ds.setUnderlineText(false);
     }
+
+    public static final Creator<LinkSpan> CREATOR = new Creator<LinkSpan>() {
+        @Override
+        public LinkSpan createFromParcel(Parcel source) {
+            return new LinkSpan(source);
+        }
+
+        @Override
+        public LinkSpan[] newArray(int size) {
+            return new LinkSpan[size];
+        }
+    };
 }
