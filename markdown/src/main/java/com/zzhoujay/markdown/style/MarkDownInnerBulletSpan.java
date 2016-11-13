@@ -5,8 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.style.ReplacementSpan;
 
 import com.zzhoujay.markdown.util.NumberKit;
@@ -15,7 +13,7 @@ import com.zzhoujay.markdown.util.NumberKit;
  * Created by zhou on 16-7-3.
  * 列表Span
  */
-public class MarkDownInnerBulletSpan extends ReplacementSpan implements Parcelable {
+public class MarkDownInnerBulletSpan extends ReplacementSpan {
 
     private static final int BULLET_RADIUS = 6;
     private static final int tab = 40;
@@ -28,7 +26,6 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan implements Parcelab
 
     private static Path circleBulletPath = null;
     private static Path rectBulletPath = null;
-
 
 
     public MarkDownInnerBulletSpan(int level, int mColor, int index) {
@@ -93,11 +90,11 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan implements Parcelab
                 }
 
                 canvas.save();
-                canvas.translate(x + margin-gap, (top + bottom) / 2.0f);
+                canvas.translate(x + margin - gap, (top + bottom) / 2.0f);
                 canvas.drawPath(path, paint);
                 canvas.restore();
             } else {
-                canvas.drawCircle(x + margin-gap, (top + bottom) / 2.0f, BULLET_RADIUS, paint);
+                canvas.drawCircle(x + margin - gap, (top + bottom) / 2.0f, BULLET_RADIUS, paint);
             }
             paint.setStyle(style);
         }
@@ -106,42 +103,4 @@ public class MarkDownInnerBulletSpan extends ReplacementSpan implements Parcelab
         paint.setColor(oldcolor);
     }
 
-
-    public MarkDownInnerBulletSpan(int mColor, String index, int margin, int level) {
-        this.mColor = mColor;
-        this.index = index;
-        this.margin = margin;
-        this.level = level;
-    }
-
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.mColor);
-        dest.writeString(this.index);
-        dest.writeInt(this.margin);
-        dest.writeInt(this.level);
-    }
-
-    protected MarkDownInnerBulletSpan(Parcel in) {
-        this.mColor = in.readInt();
-        this.index = in.readString();
-        this.margin = in.readInt();
-        this.level = in.readInt();
-    }
-
-    public static final Parcelable.Creator<MarkDownInnerBulletSpan> CREATOR = new Parcelable.Creator<MarkDownInnerBulletSpan>() {
-        @Override
-        public MarkDownInnerBulletSpan createFromParcel(Parcel source) {
-            return new MarkDownInnerBulletSpan(source);
-        }
-
-        @Override
-        public MarkDownInnerBulletSpan[] newArray(int size) {
-            return new MarkDownInnerBulletSpan[size];
-        }
-    };
 }
