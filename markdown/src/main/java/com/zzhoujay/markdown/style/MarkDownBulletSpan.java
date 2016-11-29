@@ -153,7 +153,6 @@ public class MarkDownBulletSpan extends BulletSpan {
         dest.writeString(this.index);
         dest.writeInt(this.level);
         dest.writeInt(this.margin);
-        dest.writeParcelable((Parcelable) this.textViewWeakReference.get(), flags);
     }
 
     protected MarkDownBulletSpan(Parcel in) {
