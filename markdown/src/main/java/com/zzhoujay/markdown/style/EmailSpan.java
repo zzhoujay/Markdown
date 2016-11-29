@@ -22,7 +22,7 @@ public class EmailSpan extends URLSpan {
         this.color = color;
     }
 
-    public EmailSpan(Parcel src) {
+    private EmailSpan(Parcel src) {
         super(src);
         color = src.readInt();
     }

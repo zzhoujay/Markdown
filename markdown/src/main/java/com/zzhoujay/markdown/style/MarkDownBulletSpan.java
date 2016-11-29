@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
@@ -34,8 +33,6 @@ public class MarkDownBulletSpan extends BulletSpan {
     private static Path circleBulletPath = null;
     private static Path rectBulletPath = null;
 
-
-    public static final int STANDARD_GAP_WIDTH = 2;
     private WeakReference<TextView> textViewWeakReference;
 
     public MarkDownBulletSpan(int l, int color, int pointIndex, TextView textView) {
@@ -155,7 +152,7 @@ public class MarkDownBulletSpan extends BulletSpan {
         dest.writeInt(this.margin);
     }
 
-    protected MarkDownBulletSpan(Parcel in) {
+    private MarkDownBulletSpan(Parcel in) {
         super(in);
         this.mWantColor = in.readByte() != 0;
         this.mColor = in.readInt();

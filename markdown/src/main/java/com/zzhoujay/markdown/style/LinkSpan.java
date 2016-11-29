@@ -17,7 +17,7 @@ public class LinkSpan extends URLSpan {
         this.color = color;
     }
 
-    public LinkSpan(Parcel src) {
+    private LinkSpan(Parcel src) {
         super(src);
         color = src.readInt();
     }

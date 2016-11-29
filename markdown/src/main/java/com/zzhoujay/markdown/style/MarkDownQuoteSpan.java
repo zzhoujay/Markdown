@@ -23,7 +23,7 @@ public class MarkDownQuoteSpan extends QuoteSpan {
         super(color);
     }
 
-    public MarkDownQuoteSpan(Parcel src) {
+    private MarkDownQuoteSpan(Parcel src) {
         super(src);
     }
 

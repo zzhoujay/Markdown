@@ -6,17 +6,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zzhoujay.markdown.MarkDown;
-import com.zzhoujay.markdown.style.QuotaBulletSpan;
 
 import java.io.InputStream;
-
-import android.widget.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
             "\n" +
             "##### 开发中。。。\n" +
             "\n" +
-            "_by zzhoujay_\n";
+            "__by zzhoujay__\n";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         assert textView != null;
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        final InputStream stream = getResources().openRawResource(R.raw.dy);
+        final InputStream stream = getResources().openRawResource(R.raw.hello);
 
         textView.post(new Runnable() {
             @Override

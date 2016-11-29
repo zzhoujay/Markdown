@@ -21,7 +21,7 @@ public class FontSpan extends StyleSpan implements ParcelableSpan {
         this.color = color;
     }
 
-    public FontSpan(Parcel parcel) {
+    private FontSpan(Parcel parcel) {
         super(parcel);
         this.size = parcel.readFloat();
         this.color = parcel.readInt();

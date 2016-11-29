@@ -12,7 +12,10 @@
 * 支持修正图片宽高
 * 支持GIF图片
 
+
 ### 效果
+
+`hello code`
 
 ![演示](image/image.jpg "演示")
 
@@ -47,7 +50,7 @@ RichText
 ```
 
 ### 自定义修复宽高
-`hello`
+
 ```
 RichText.from(text).fix(new ImageFixCallback() {
                 @Override
@@ -101,6 +104,3 @@ RichText.from(text).fix(new ImageFixCallback() {
 [Gif Demo](https://github.com/zzhoujay/RichText/blob/master/app/src/main/java/zhou/demo/GifActivity.java)
 
 _by zzhoujay_
-
-    hello
-    code
