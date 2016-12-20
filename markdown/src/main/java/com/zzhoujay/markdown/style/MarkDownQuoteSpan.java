@@ -2,7 +2,6 @@ package com.zzhoujay.markdown.style;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Parcel;
 import android.text.Layout;
 import android.text.style.QuoteSpan;
 
@@ -21,10 +20,6 @@ public class MarkDownQuoteSpan extends QuoteSpan {
 
     public MarkDownQuoteSpan(int color) {
         super(color);
-    }
-
-    private MarkDownQuoteSpan(Parcel src) {
-        super(src);
     }
 
     @Override
@@ -46,15 +41,4 @@ public class MarkDownQuoteSpan extends QuoteSpan {
         return STRIPE_WIDTH + GAP_WIDTH;
     }
 
-    public static final Creator<MarkDownQuoteSpan> CREATOR=new Creator<MarkDownQuoteSpan>() {
-        @Override
-        public MarkDownQuoteSpan createFromParcel(Parcel source) {
-            return new MarkDownQuoteSpan(source);
-        }
-
-        @Override
-        public MarkDownQuoteSpan[] newArray(int size) {
-            return new MarkDownQuoteSpan[size];
-        }
-    };
 }

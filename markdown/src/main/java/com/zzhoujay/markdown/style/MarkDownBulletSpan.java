@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Build;
-import android.os.Parcel;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
@@ -137,40 +136,4 @@ public class MarkDownBulletSpan extends BulletSpan {
         }
     }
 
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte(this.mWantColor ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.mColor);
-        dest.writeString(this.index);
-        dest.writeInt(this.level);
-        dest.writeInt(this.margin);
-    }
-
-    private MarkDownBulletSpan(Parcel in) {
-        super(in);
-        this.mWantColor = in.readByte() != 0;
-        this.mColor = in.readInt();
-        this.index = in.readString();
-        this.level = in.readInt();
-        this.margin = in.readInt();
-        this.textViewWeakReference = null;
-    }
-
-    public static final Creator<MarkDownBulletSpan> CREATOR = new Creator<MarkDownBulletSpan>() {
-        @Override
-        public MarkDownBulletSpan createFromParcel(Parcel source) {
-            return new MarkDownBulletSpan(source);
-        }
-
-        @Override
-        public MarkDownBulletSpan[] newArray(int size) {
-            return new MarkDownBulletSpan[size];
-        }
-    };
 }

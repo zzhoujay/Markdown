@@ -1,9 +1,9 @@
 package com.zzhoujay.markdown.style;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Parcel;
 import android.text.TextPaint;
 import android.text.style.URLSpan;
 import android.util.Log;
@@ -13,6 +13,7 @@ import android.view.View;
  * Created by zhou on 16-7-30.
  * EmailSpan
  */
+@SuppressLint("ParcelCreator")
 public class EmailSpan extends URLSpan {
 
     private int color;
@@ -20,17 +21,6 @@ public class EmailSpan extends URLSpan {
     public EmailSpan(String email, int color) {
         super(email);
         this.color = color;
-    }
-
-    private EmailSpan(Parcel src) {
-        super(src);
-        color = src.readInt();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeInt(color);
     }
 
     @Override
@@ -52,16 +42,4 @@ public class EmailSpan extends URLSpan {
             Log.w("URLSpan", "Actvity was not found for intent, " + intent.toString());
         }
     }
-
-    public static final Creator<EmailSpan> CREATOR = new Creator<EmailSpan>() {
-        @Override
-        public EmailSpan createFromParcel(Parcel source) {
-            return new EmailSpan(source);
-        }
-
-        @Override
-        public EmailSpan[] newArray(int size) {
-            return new EmailSpan[size];
-        }
-    };
 }
