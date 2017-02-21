@@ -206,10 +206,11 @@ public class StyleBuilderImpl implements StyleBuilder {
             drawable = imageGetter.getDrawable(url);
         }
         if (drawable == null) {
-            builder.delete(0, builder.length());
-            return builder;
+            drawable = new ColorDrawable(Color.TRANSPARENT);
+//            builder.delete(0, builder.length());
+//            return builder;
         }
-        ImageSpan imageSpan = new ImageSpan(drawable);
+        ImageSpan imageSpan = new ImageSpan(drawable, url);
         builder.setSpan(imageSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return builder;
     }
