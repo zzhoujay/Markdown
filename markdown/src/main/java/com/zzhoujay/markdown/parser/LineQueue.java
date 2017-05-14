@@ -116,6 +116,13 @@ public class LineQueue {
         curr = root;
     }
 
+    public boolean empty() {
+        if (curr == null || root == null || last == null) {
+            return true;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         Line t = root;

@@ -41,7 +41,7 @@ class MarkDownParser {
     }
 
     MarkDownParser(String text, StyleBuilder styleBuilder) {
-        this(new BufferedReader(new StringReader(text)), styleBuilder);
+        this(new BufferedReader(new StringReader(text == null ? "" : text)), styleBuilder);
     }
 
 
@@ -81,6 +81,9 @@ class MarkDownParser {
      * @return Spanned
      */
     private Spannable parse(final LineQueue queue) {
+        if (queue == null) {
+            return null;
+        }
         tagHandler.setQueueProvider(new QueueConsumer.QueueProvider() {
             @Override
             public LineQueue getQueue() {
@@ -88,6 +91,9 @@ class MarkDownParser {
             }
         });
         removeCurrBlankLine(queue);
+        if (queue.empty()) {
+            return null;
+        }
         boolean notBlock;// 当前Line不是CodeBlock
         do {
 
