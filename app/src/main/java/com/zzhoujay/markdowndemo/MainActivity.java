@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String markdown_test = "image: ![image](http://image.tianjimedia.com/uploadImages/2015/129/56/J63MI042Z4P8.jpg)\n[link](https://github.com/zzhoujay/RichText/issues)";
 
-    private static final String empty_string = null;
+    private static final String empty_string = "  \n   \n  \n# hello";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

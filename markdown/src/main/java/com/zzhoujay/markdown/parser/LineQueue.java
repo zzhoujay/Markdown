@@ -117,10 +117,7 @@ public class LineQueue {
     }
 
     public boolean empty() {
-        if (curr == null || root == null || last == null) {
-            return true;
-        }
-        return true;
+        return curr == null || root == null || last == null;
     }
 
     @Override
