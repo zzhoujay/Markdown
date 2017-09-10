@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 long time = System.nanoTime();
-                Spanned spanned = MarkDown.fromMarkdown(empty_string, new Html.ImageGetter() {
+                Spanned spanned = MarkDown.fromMarkdown(stream, new Html.ImageGetter() {
                     public static final String TAG = "Markdown";
 
                     @Override
