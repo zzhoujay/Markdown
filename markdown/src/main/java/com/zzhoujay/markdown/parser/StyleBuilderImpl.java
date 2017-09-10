@@ -153,7 +153,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ol(CharSequence charSequence, int level, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, index, textViewWeakReference.get());
+        BulletSpan bulletSpan = new MarkDownBulletSpan(level, h1_color, index);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
