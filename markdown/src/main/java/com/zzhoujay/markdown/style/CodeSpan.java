@@ -2,6 +2,7 @@ package com.zzhoujay.markdown.style;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.style.ReplacementSpan;
@@ -27,16 +28,17 @@ public class CodeSpan extends ReplacementSpan {
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
-        padding = paint.measureText("t");
+        paint.setTypeface(Typeface.MONOSPACE);
+        padding = paint.measureText("t") * 0.5f;
         width = (int) (paint.measureText(text, start, end) + padding * 2);
         return width;
     }
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+        paint.setTypeface(Typeface.MONOSPACE);
         drawable.setBounds((int) x, top, (int) x + width, bottom);
         drawable.draw(canvas);
         canvas.drawText(text, start, end, x + padding, y, paint);
     }
-
 }

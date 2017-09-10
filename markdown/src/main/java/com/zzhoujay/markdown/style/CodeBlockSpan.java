@@ -2,6 +2,7 @@ package com.zzhoujay.markdown.style;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.style.LineHeightSpan;
@@ -18,7 +19,7 @@ import java.util.List;
 public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
 
     private static final float radius = 10;
-    private static final int padding = 30;
+    private static final int padding = 20;
 
     private int width;
     private Drawable drawable;
@@ -38,6 +39,7 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+        paint.setTypeface(Typeface.MONOSPACE);
         if (fm != null && lines == null) {
             lines = new ArrayList<>();
             for (CharSequence c : ls) {
@@ -49,6 +51,7 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+        paint.setTypeface(Typeface.MONOSPACE);
         drawable.setBounds((int) x, top, (int) x + width, bottom);
         drawable.draw(canvas);
         int lineNum = 0;
