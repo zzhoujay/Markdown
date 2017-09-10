@@ -13,32 +13,51 @@ import android.text.style.ReplacementSpan;
  */
 public class CodeSpan extends ReplacementSpan {
 
-    private static final float radius = 10;
+    private static final float RADIUS = 10;
+    private static final float PADDING_HORIZONTAL = 16;
+    private static final float PADDING_VERTICAL = 2;
+    private static final float MARGIN = 8;
+    private static final float TEXT_SIZE_SCALE = 0.92f;
 
-    private Drawable drawable;
-    private float padding;
-    private int width;
+    private Drawable mBackground;
+    private int mWidth;
+    private int mHeight;
 
     public CodeSpan(int color) {
         GradientDrawable d = new GradientDrawable();
         d.setColor(color);
-        d.setCornerRadius(radius);
-        drawable = d;
+        d.setCornerRadius(RADIUS);
+        mBackground = d;
     }
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+        mHeight = paint.getFontMetricsInt().descent - paint.getFontMetricsInt().ascent;
+
+        float size = paint.getTextSize();
+        paint.setTextSize(size * TEXT_SIZE_SCALE);
         paint.setTypeface(Typeface.MONOSPACE);
-        padding = paint.measureText("t") * 0.5f;
-        width = (int) (paint.measureText(text, start, end) + padding * 2);
-        return width;
+
+        mWidth = (int) (paint.measureText(text, start, end) + PADDING_HORIZONTAL * 2 + MARGIN * 2);
+        if (fm != null) {
+            fm.top -= PADDING_VERTICAL;
+            fm.bottom += PADDING_VERTICAL;
+        }
+
+        paint.setTextSize(size);
+        return mWidth;
     }
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+        float size = paint.getTextSize();
+        paint.setTextSize(size * TEXT_SIZE_SCALE);
         paint.setTypeface(Typeface.MONOSPACE);
-        drawable.setBounds((int) x, top, (int) x + width, bottom);
-        drawable.draw(canvas);
-        canvas.drawText(text, start, end, x + padding, y, paint);
+
+        mBackground.setBounds((int) (x + MARGIN), (int) (top - PADDING_VERTICAL), (int) (x + mWidth - MARGIN), (int) (top + mHeight + PADDING_VERTICAL));
+        mBackground.draw(canvas);
+        canvas.drawText(text, start, end, x + MARGIN + PADDING_HORIZONTAL, y - mHeight * (1 - TEXT_SIZE_SCALE) * 0.5f, paint);
+
+        paint.setTextSize(size);
     }
 }
