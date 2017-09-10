@@ -18,59 +18,80 @@ import java.util.List;
  */
 public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
 
-    private static final float radius = 10;
-    private static final int padding = 20;
+    private static final float RADIUS = 10;
+    private static final float PADDING = 16;
+    private static final float TEXT_SIZE_SCALE = 0.92f;
 
-    private int width;
-    private Drawable drawable;
-    private int baseLine;
-    private int lineHeight;
-    private CharSequence[] ls;
+    private int mWidth;
+    private Drawable mBackground;
+    private int mBaseline;
+    private int mLineHeight;
+    private CharSequence[] mLines;
     private List<Pair<Integer, Integer>> lines;
 
     public CodeBlockSpan(int width, int color, CharSequence... lines) {
-        this.width = width;
+        mWidth = width;
         GradientDrawable g = new GradientDrawable();
         g.setColor(color);
-        g.setCornerRadius(radius);
-        drawable = g;
-        this.ls = lines;
+        g.setCornerRadius(RADIUS);
+        mBackground = g;
+        mLines = lines;
     }
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+        float size = paint.getTextSize();
+        paint.setTextSize(size * TEXT_SIZE_SCALE);
         paint.setTypeface(Typeface.MONOSPACE);
+
         if (fm != null && lines == null) {
             lines = new ArrayList<>();
-            for (CharSequence c : ls) {
+            for (CharSequence c : mLines) {
                 lines.addAll(measureTextLine(c, 0, c.length(), paint));
             }
         }
-        return width;
+
+        paint.setTextSize(size);
+        return mWidth;
     }
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+        float size = paint.getTextSize();
+        paint.setTextSize(size * TEXT_SIZE_SCALE);
         paint.setTypeface(Typeface.MONOSPACE);
-        drawable.setBounds((int) x, top, (int) x + width, bottom);
-        drawable.draw(canvas);
+
         int lineNum = 0;
-        x = x + padding;
-        int i = baseLine + lineHeight / 2 + top;
+        int height = mLineHeight;
         for (Pair<Integer, Integer> line : lines) {
-            CharSequence t = ls[lineNum];
-            canvas.drawText(t, line.first, line.second, x + padding, i, paint);
+            CharSequence t = mLines[lineNum];
             if (line.second >= t.length()) {
                 lineNum++;
             }
-            i += lineHeight;
+            height += mLineHeight;
         }
+
+        mBackground.setBounds((int) x, top, (int) x + mWidth, top + height);
+        mBackground.draw(canvas);
+
+        lineNum = 0;
+        x = x + PADDING;
+        int i = mBaseline + mLineHeight / 2 + top;
+        for (Pair<Integer, Integer> line : lines) {
+            CharSequence t = mLines[lineNum];
+            canvas.drawText(t, line.first, line.second, x + PADDING, i, paint);
+            if (line.second >= t.length()) {
+                lineNum++;
+            }
+            i += mLineHeight;
+        }
+        paint.setTextSize(size);
     }
 
 
     private int getTextInLineLen(CharSequence text, int start, int end, Paint paint) {
         int e = start;
-        while (paint.measureText(text, start, e) < width - padding * 2) {
+        while (paint.measureText(text, start, e) < mWidth - PADDING * 2) {
             e++;
             if (e > end) {
                 break;
@@ -84,7 +105,7 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
         if (rs > end) {
             return end;
         }
-        while (paint.measureText(text, start, e) < width - padding * 2) {
+        while (paint.measureText(text, start, e) < mWidth - PADDING * 2) {
             e++;
             if (e > end || e > re) {
                 break;
@@ -110,12 +131,10 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
     @Override
     public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v, Paint.FontMetricsInt fm) {
         int num = lines.size();
-        lineHeight = fm.bottom - fm.top;
-        baseLine = -fm.top;
+        mLineHeight = fm.bottom - fm.top;
+        mBaseline = -fm.top;
         fm.ascent = fm.top;
-        fm.bottom += num * lineHeight;
+        fm.bottom += num * mLineHeight;
         fm.descent = fm.bottom;
     }
-
-
 }
