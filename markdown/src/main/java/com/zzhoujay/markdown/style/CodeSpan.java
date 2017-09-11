@@ -22,12 +22,15 @@ public class CodeSpan extends ReplacementSpan {
     private Drawable mBackground;
     private int mWidth;
     private int mHeight;
+    private int mTextColor;
 
-    public CodeSpan(int color) {
+    public CodeSpan(int backgroundColor, int textColor) {
         GradientDrawable d = new GradientDrawable();
-        d.setColor(color);
+        d.setColor(backgroundColor);
         d.setCornerRadius(RADIUS);
         mBackground = d;
+
+        mTextColor = textColor;
     }
 
     @Override
@@ -56,7 +59,11 @@ public class CodeSpan extends ReplacementSpan {
 
         mBackground.setBounds((int) (x + MARGIN), (int) (top - PADDING_VERTICAL), (int) (x + mWidth - MARGIN), (int) (top + mHeight + PADDING_VERTICAL));
         mBackground.draw(canvas);
+
+        int color = paint.getColor();
+        paint.setColor(mTextColor);
         canvas.drawText(text, start, end, x + MARGIN + PADDING_HORIZONTAL, y - mHeight * (1 - TEXT_SIZE_SCALE) * 0.5f, paint);
+        paint.setColor(color);
 
         paint.setTextSize(size);
     }

@@ -24,18 +24,20 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
 
     private int mWidth;
     private Drawable mBackground;
+    private int mTextColor;
     private int mBaseline;
     private int mLineHeight;
     private CharSequence[] mLines;
     private List<Pair<Integer, Integer>> lines;
 
-    public CodeBlockSpan(int width, int color, CharSequence... lines) {
+    public CodeBlockSpan(int width, int backgroundColor, int textColor, CharSequence... lines) {
         mWidth = width;
         GradientDrawable g = new GradientDrawable();
-        g.setColor(color);
+        g.setColor(backgroundColor);
         g.setCornerRadius(RADIUS);
         mBackground = g;
         mLines = lines;
+        mTextColor = textColor;
     }
 
     @Override
@@ -74,6 +76,9 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
         mBackground.setBounds((int) x, top, (int) x + mWidth, top + height);
         mBackground.draw(canvas);
 
+        int color = paint.getColor();
+        paint.setColor(mTextColor);
+
         lineNum = 0;
         x = x + PADDING;
         int i = mBaseline + mLineHeight / 2 + top;
@@ -86,6 +91,7 @@ public class CodeBlockSpan extends ReplacementSpan implements LineHeightSpan {
             i += mLineHeight;
         }
         paint.setTextSize(size);
+        paint.setColor(color);
     }
 
 

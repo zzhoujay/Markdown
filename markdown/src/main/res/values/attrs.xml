@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Theme">
+        <attr name="markdownStyle" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="MarkdownTheme">
+        <attr name="h1TextColor" format="color|reference"/>
+        <attr name="h6TextColor" format="color|reference"/>
+        <attr name="quotaColor" format="color|reference"/>
+        <attr name="quotaTextColor" format="color|reference"/>
+        <attr name="codeTextColor" format="color|reference"/>
+        <attr name="codeBackgroundColor" format="color|reference"/>
+        <attr name="linkColor" format="color|reference"/>
+        <attr name="underlineColor" format="color|reference"/>
+    </declare-styleable>
+
+</resources>

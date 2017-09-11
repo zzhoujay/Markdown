@@ -9,7 +9,7 @@ android {
     buildToolsVersion "26.0.1"
 
     defaultConfig {
-        minSdkVersion 5
+        minSdkVersion 14
         targetSdkVersion 26
         versionCode version_code
         versionName version_name
@@ -26,8 +26,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
 }
 
 
