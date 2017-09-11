@@ -1,6 +1,7 @@
 package com.zzhoujay.markdowndemo;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,7 +70,7 @@ public class MainActivity extends Activity {
                     }
                 }, mTextView);
                 long useTime = System.nanoTime() - time;
-                Toast.makeText(getApplicationContext(), "use time:" + useTime, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "use time: " + useTime + "ns", Toast.LENGTH_LONG).show();
                 mTextView.setText(spanned);
             }
         });
@@ -90,18 +92,31 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, R.raw.dy,       0, "dy");
-        menu.add(0, R.raw.hello,    0, "hello");
-        menu.add(0, R.raw.mark,     0, "mark");
-        menu.add(0, R.raw.sof,      0, "sof");
-        menu.add(0, R.raw.test,     0, "test");
-        menu.add(0, R.raw.tt,       0, "tt");
+        menu.add(0, 0x1,        0, "Night mode");
+        SubMenu sub = menu.addSubMenu(0, 0x2, 0, "Documents");
+        sub.add(0, R.raw.dy,       0, "dy");
+        sub.add(0, R.raw.hello,    0, "hello");
+        sub.add(0, R.raw.mark,     0, "mark");
+        sub.add(0, R.raw.sof,      0, "sof");
+        sub.add(0, R.raw.test,     0, "test");
+        sub.add(0, R.raw.tt,       0, "tt");
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        setText(item.getItemId());
-        return true;
+        if (item.getItemId() != 0x1
+                && item.getItemId() != 0x2) {
+            setText(item.getItemId());
+            return true;
+        } else if (item.getItemId() == 0x1) {
+            getResources().getConfiguration().uiMode |= Configuration.UI_MODE_NIGHT_YES;
+            getResources().getConfiguration().uiMode &= ~Configuration.UI_MODE_NIGHT_NO;
+            getResources().updateConfiguration(getResources().getConfiguration(), getResources().getDisplayMetrics());
+            recreate();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 }

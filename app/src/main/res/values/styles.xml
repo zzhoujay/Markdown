@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.DayNight" parent="AppTheme.Light"/>
+    <style name="AppTheme" parent="android:Theme.DeviceDefault">
+        <item name="markdownStyle">@style/Markdown</item>
+    </style>
+    <style name="AppTheme.Light" parent="android:Theme.DeviceDefault.Light">
+        <item name="markdownStyle">@style/Markdown.Light</item>
+    </style>
+</resources>

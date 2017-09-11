@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:lineSpacingExtra="2sp"
         android:textSize="15sp"
+        android:textColor="?android:textColorPrimary"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
