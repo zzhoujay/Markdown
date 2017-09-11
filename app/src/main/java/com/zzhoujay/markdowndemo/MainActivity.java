@@ -13,6 +13,8 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,18 +27,24 @@ import java.net.URL;
 
 public class MainActivity extends Activity {
 
+    private TextView mTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final TextView textView = findViewById(R.id.textView);
-        assert textView != null;
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        mTextView = findViewById(R.id.textView);
+        assert mTextView != null;
+        mTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        final InputStream stream = getResources().openRawResource(R.raw.hello);
+        setText(R.raw.hello);
+    }
 
-        textView.post(new Runnable() {
+    private void setText(int resId) {
+        final InputStream stream = getResources().openRawResource(resId);
+
+        mTextView.post(new Runnable() {
             @Override
             public void run() {
                 long time = System.nanoTime();
@@ -54,14 +62,14 @@ public class MainActivity extends Activity {
                         } catch (IOException e) {
                             Log.w(TAG, "can't get image", e);
                             drawable = new ColorDrawable(Color.LTGRAY);
-                            drawable.setBounds(0, 0, textView.getWidth() - textView.getPaddingLeft() - textView.getPaddingRight(), 400);
+                            drawable.setBounds(0, 0, mTextView.getWidth() - mTextView.getPaddingLeft() - mTextView.getPaddingRight(), 400);
                         }
                         return drawable;
                     }
-                }, textView);
+                }, mTextView);
                 long useTime = System.nanoTime() - time;
                 Toast.makeText(getApplicationContext(), "use time:" + useTime, Toast.LENGTH_LONG).show();
-                textView.setText(spanned);
+                mTextView.setText(spanned);
             }
         });
     }
@@ -78,5 +86,22 @@ public class MainActivity extends Activity {
 
         x = BitmapFactory.decodeStream(input);
         return new BitmapDrawable(x);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, R.raw.dy,       0, "dy");
+        menu.add(0, R.raw.hello,    0, "hello");
+        menu.add(0, R.raw.mark,     0, "mark");
+        menu.add(0, R.raw.sof,      0, "sof");
+        menu.add(0, R.raw.test,     0, "test");
+        menu.add(0, R.raw.tt,       0, "tt");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        setText(item.getItemId());
+        return true;
     }
 }
