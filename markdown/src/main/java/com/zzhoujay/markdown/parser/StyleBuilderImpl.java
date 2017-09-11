@@ -161,7 +161,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ul2(CharSequence charSequence, int quotaLevel, int bulletLevel) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, 0, textViewWeakReference.get());
+        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, 0);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
@@ -169,7 +169,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     @Override
     public SpannableStringBuilder ol2(CharSequence charSequence, int quotaLevel, int bulletLevel, int index) {
         SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(charSequence);
-        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, index, textViewWeakReference.get());
+        QuotaBulletSpan bulletSpan = new QuotaBulletSpan(quotaLevel, bulletLevel, quota_color, h1_color, index);
         spannableStringBuilder.setSpan(bulletSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableStringBuilder;
     }
