@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zzhoujay.markdown.MarkDown;
+import com.zzhoujay.markdown.method.LongPressLinkMovementMethod;
+import com.zzhoujay.markdown.style.LongPressClickableSpan;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +40,7 @@ public class MainActivity extends Activity {
 
         mTextView = findViewById(R.id.textView);
         assert mTextView != null;
-        mTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        mTextView.setMovementMethod(LongPressLinkMovementMethod.getInstance());
 
         setText(R.raw.hello);
     }

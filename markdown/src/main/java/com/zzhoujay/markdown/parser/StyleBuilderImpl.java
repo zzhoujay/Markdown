@@ -9,13 +9,16 @@ import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
+import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.StrikethroughSpan;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zzhoujay.markdown.R;
 import com.zzhoujay.markdown.style.CodeBlockSpan;
@@ -23,6 +26,7 @@ import com.zzhoujay.markdown.style.CodeSpan;
 import com.zzhoujay.markdown.style.EmailSpan;
 import com.zzhoujay.markdown.style.FontSpan;
 import com.zzhoujay.markdown.style.LinkSpan;
+import com.zzhoujay.markdown.style.LongPressClickableSpan;
 import com.zzhoujay.markdown.style.MarkDownBulletSpan;
 import com.zzhoujay.markdown.style.MarkDownQuoteSpan;
 import com.zzhoujay.markdown.style.QuotaBulletSpan;
@@ -225,7 +229,7 @@ public class StyleBuilderImpl implements StyleBuilder {
     }
 
     @Override
-    public SpannableStringBuilder image(CharSequence title, String url, String hint) {
+    public SpannableStringBuilder image(CharSequence title, String url, final String hint) {
         if (title == null || title.length() == 0) {
             title = "$";
         }
@@ -241,6 +245,20 @@ public class StyleBuilderImpl implements StyleBuilder {
         }
         ImageSpan imageSpan = new ImageSpan(drawable, url);
         builder.setSpan(imageSpan, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (!TextUtils.isEmpty(hint)) {
+            builder.setSpan(new LongPressClickableSpan() {
+                @Override
+                public void onLongPress(View view) {
+                    Toast.makeText(view.getContext(), hint, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onClick(View view) {
+                }
+            }, 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
         return builder;
     }
 

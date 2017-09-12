@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven'
 
 def version_code = 18
 def version_name = '1.0.5'
@@ -48,4 +49,38 @@ publish {
     //网站，不重要
     website = 'https://github.com/zzhoujay/Markdown'
 
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    failOnError false
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = "javadoc"
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = "sources"
+    from android.sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives androidSourcesJar
+    //archives androidJavadocsJar
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: 'file:///C:/Users/rikka/.m2/repository')
+        pom.project {
+            name 'markdown'
+            groupId "com.zzhoujay.markdown"
+            artifactId 'markdown'
+            version '1.0.6'
+            packaging 'aar'
+        }
+    }
 }

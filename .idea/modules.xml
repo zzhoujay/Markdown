@@ -4,9 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Markdown.iml" filepath="$PROJECT_DIR$/Markdown.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\Users\rikka\AndroidProjects\Markdown\app\app.iml" filepath="C:\Users\rikka\AndroidProjects\Markdown\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/markdown/markdown.iml" filepath="$PROJECT_DIR$/markdown/markdown.iml" />
-      <module fileurl="file://C:\Users\rikka\AndroidProjects\Markdown\markdown\markdown.iml" filepath="C:\Users\rikka\AndroidProjects\Markdown\markdown\markdown.iml" />
     </modules>
   </component>
 </project>
