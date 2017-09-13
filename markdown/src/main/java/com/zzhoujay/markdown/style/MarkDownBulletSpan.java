@@ -8,132 +8,96 @@ import android.os.Build;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
-import android.widget.TextView;
 
 import com.zzhoujay.markdown.util.NumberKit;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Created by zhou on 16-6-25.
  * 列表Span
  */
 public class MarkDownBulletSpan extends BulletSpan {
-    private static final int tab = 40;
-    private static final int mGapWidth = 40;
-    private static final int BULLET_RADIUS = 6;
 
-    private final boolean mWantColor;
-    private final int mColor;
-    private final String index;
-    private int level = 0;
-    private int margin;
+    private static final int TAB = 40;
+    private static final int GAP_WIDTH = 40;
+    private static final float BULLET_RADIUS = 7.2f;
 
-    private static Path circleBulletPath = null;
-    private static Path rectBulletPath = null;
+    private static final Path CIRCLE_BULLET_PATH;
+    private static final Path RECT_BULLET_PATH;
 
-    private WeakReference<TextView> textViewWeakReference;
+    static {
+        float w = BULLET_RADIUS;
 
-    public MarkDownBulletSpan(int l, int color, int pointIndex, TextView textView) {
-        super(mGapWidth, color);
-        level = l;
-        if (pointIndex > 0) {
-            if (level == 1) {
-                this.index = NumberKit.toRomanNumerals(pointIndex);
-            } else if (level >= 2) {
-                this.index = NumberKit.toABC(pointIndex - 1);
-            } else {
-                this.index = pointIndex + "";
-            }
-        } else {
-            index = null;
-        }
-        mWantColor = true;
-        mColor = color;
-        textViewWeakReference = new WeakReference<>(textView);
+        RECT_BULLET_PATH = new Path();
+        RECT_BULLET_PATH.addRect(-w, -w, w, w, Path.Direction.CW);
+
+        CIRCLE_BULLET_PATH = new Path();
+        // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
+        CIRCLE_BULLET_PATH.addCircle(0.0f, 0.0f, w, Path.Direction.CW);
     }
 
-    public MarkDownBulletSpan(int level, int color, int pointIndex) {
-        super(mGapWidth, color);
-        this.level = level;
+    private final int mBulletColor;
+    private final String mIndex;
+    private final int mLevel;
+
+    private int mMargin;
+
+    public MarkDownBulletSpan(int level, int bulletColor, int pointIndex) {
+        super(GAP_WIDTH, bulletColor);
+
+        mLevel = level;
         if (pointIndex > 0) {
             if (level == 1) {
-                this.index = NumberKit.toRomanNumerals(pointIndex);
+                mIndex = NumberKit.toRomanNumerals(pointIndex) + '.';
             } else if (level >= 2) {
-                this.index = NumberKit.toABC(pointIndex - 1);
+                mIndex = NumberKit.toABC(pointIndex - 1) + '.';
             } else {
-                this.index = pointIndex + "";
+                mIndex = String.valueOf(pointIndex) + '.';
             }
         } else {
-            index = null;
+            mIndex = null;
         }
-        mWantColor = true;
-        mColor = color;
-    }
 
+        mBulletColor = bulletColor;
+    }
 
     @Override
     public int getLeadingMargin(boolean first) {
-        TextView textView = textViewWeakReference != null ? textViewWeakReference.get() : null;
-        if (index != null && textView != null) {
-            margin = (int) (tab + (mGapWidth + textView.getPaint().measureText(index)) * (level + 1));
-        } else {
-            margin = (2 * BULLET_RADIUS + mGapWidth) * (level + 1) + tab;
-        }
-        return margin;
+        mMargin = TAB + (2 * (int) BULLET_RADIUS + GAP_WIDTH) * (mLevel + 1);
+        return mMargin;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout l) {
-        if (((Spanned) text).getSpanStart(this) == start) {
-            int oldcolor = 0;
-            if (mWantColor) {
-                oldcolor = p.getColor();
-                p.setColor(mColor);
-            }
-            if (index != null) {
-                c.drawText(index + '.', x - p.measureText(index) + margin - mGapWidth, baseline, p);
-            } else {
-                Paint.Style style = p.getStyle();
-                if (level == 1) {
-                    p.setStyle(Paint.Style.STROKE);
-                } else {
-                    p.setStyle(Paint.Style.FILL);
-                }
-
-                if (c.isHardwareAccelerated()) {
-                    Path path;
-                    if (level >= 2) {
-                        if (rectBulletPath == null) {
-                            rectBulletPath = new Path();
-                            float w = 1.2f * BULLET_RADIUS;
-                            rectBulletPath.addRect(-w, -w, w, w, Path.Direction.CW);
-                        }
-                        path = rectBulletPath;
-                    } else {
-                        if (circleBulletPath == null) {
-                            circleBulletPath = new Path();
-                            // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                            circleBulletPath.addCircle(0.0f, 0.0f, 1.2f * BULLET_RADIUS, Path.Direction.CW);
-                        }
-                        path = circleBulletPath;
-                    }
-
-                    c.save();
-                    c.translate(x + margin - mGapWidth, (top + bottom) / 2.0f);
-                    c.drawPath(path, p);
-                    c.restore();
-                } else {
-                    c.drawCircle(x + margin - mGapWidth, (top + bottom) / 2.0f, BULLET_RADIUS, p);
-                }
-
-                p.setStyle(style);
-            }
-            if (mWantColor) {
-                p.setColor(oldcolor);
-            }
+        if (((Spanned) text).getSpanStart(this) != start) {
+            return;
         }
-    }
 
+        int oldColor = p.getColor();
+        p.setColor(mBulletColor);
+
+        if (mIndex != null) {
+            c.drawText(mIndex, x + mMargin - GAP_WIDTH - 2 * BULLET_RADIUS, baseline, p);
+        } else {
+            float dy = (p.getFontMetricsInt().descent - p.getFontMetricsInt().ascent) * 0.5f + top;
+
+            Paint.Style oldStyle = p.getStyle();
+            p.setStyle(mLevel == 1 ? Paint.Style.STROKE : Paint.Style.FILL);
+
+            if (!c.isHardwareAccelerated()) {
+                Path path = mLevel >= 2 ? RECT_BULLET_PATH : CIRCLE_BULLET_PATH;
+
+                c.save();
+                c.translate(x + mMargin - GAP_WIDTH, dy);
+                c.drawPath(path, p);
+                c.restore();
+            } else {
+                c.drawCircle(x + mMargin - GAP_WIDTH, dy, BULLET_RADIUS, p);
+            }
+
+            p.setStyle(oldStyle);
+        }
+
+        p.setColor(oldColor);
+    }
 }

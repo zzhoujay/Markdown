@@ -14,10 +14,6 @@ public class MarkDownQuoteSpan extends QuoteSpan {
     private static final int STRIPE_WIDTH = 15;
     private static final int GAP_WIDTH = 40;
 
-    public MarkDownQuoteSpan() {
-        super();
-    }
-
     public MarkDownQuoteSpan(int color) {
         super(color);
     }
@@ -40,5 +36,4 @@ public class MarkDownQuoteSpan extends QuoteSpan {
     public int getLeadingMargin(boolean first) {
         return STRIPE_WIDTH + GAP_WIDTH;
     }
-
 }

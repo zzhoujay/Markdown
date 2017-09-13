@@ -11,16 +11,17 @@ import android.text.style.ReplacementSpan;
  */
 public class UnderLineSpan extends ReplacementSpan implements LineHeightSpan {
 
-    private int height;
-    private int width;
-    private Drawable drawable;
+    private static final int PADDING = 12;
+
+    private int mHeight;
+    private int mWidth;
+    private Drawable mDrawable;
 
     public UnderLineSpan(Drawable drawable, int width, int height) {
-        this.height = height;
-        this.width = width;
-        this.drawable = drawable;
+        this.mHeight = height;
+        this.mWidth = width;
+        this.mDrawable = drawable;
     }
-
 
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
@@ -29,8 +30,8 @@ public class UnderLineSpan extends ReplacementSpan implements LineHeightSpan {
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
-        drawable.setBounds((int) x, bottom - height, (int) x + width, bottom);
-        drawable.draw(canvas);
+        mDrawable.setBounds((int) x, top + PADDING, (int) x + mWidth, top + mHeight + PADDING);
+        mDrawable.draw(canvas);
     }
 
     @Override

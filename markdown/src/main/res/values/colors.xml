@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="markdown_h1_text_color_light">@android:color/primary_text_light</color>
+    <color name="markdown_h6_text_color_light">@android:color/secondary_text_light</color>
+    <color name="markdown_quota_color_light">#4037474F</color>
+    <color name="markdown_quota_text_color_light">@android:color/tertiary_text_light</color>
+    <color name="markdown_code_text_color_light">#d8000000</color>
+    <color name="markdown_code_background_color_light">#0c37474F</color>
+    <color name="markdown_link_color_light">#dc3e7bc9</color>
+    <color name="markdown_underline_color_light">#1837474F</color>
+
+    <color name="markdown_h1_color_dark">@android:color/primary_text_dark</color>
+    <color name="markdown_h6_color_dark">@android:color/secondary_text_dark</color>
+    <color name="markdown_quota_color_dark">#40fafafa</color>
+    <color name="markdown_quota_text_color_dark">@android:color/tertiary_text_dark</color>
+    <color name="markdown_code_text_color_dark">#d8ffffff</color>
+    <color name="markdown_code_background_color_dark">#0cfafafa</color>
+    <color name="markdown_link_color_dark">#dc88b5ef</color>
+    <color name="markdown_underline_color_dark">#18fafafa</color>
+
+</resources>

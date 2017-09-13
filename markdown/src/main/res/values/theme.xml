@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Markdown">
+        <item name="h1TextColor">@color/markdown_h1_color_dark</item>
+        <item name="h6TextColor">@color/markdown_h6_color_dark</item>
+        <item name="quotaColor">@color/markdown_quota_color_dark</item>
+        <item name="quotaTextColor">@color/markdown_quota_text_color_dark</item>
+        <item name="codeTextColor">@color/markdown_code_text_color_dark</item>
+        <item name="codeBackgroundColor">@color/markdown_code_background_color_dark</item>
+        <item name="linkColor">@color/markdown_link_color_dark</item>
+        <item name="underlineColor">@color/markdown_underline_color_dark</item>
+    </style>
+
+    <style name="Markdown.Light">
+        <item name="h1TextColor">@color/markdown_h1_text_color_light</item>
+        <item name="h6TextColor">@color/markdown_h6_text_color_light</item>
+        <item name="quotaColor">@color/markdown_quota_color_light</item>
+        <item name="quotaTextColor">@color/markdown_quota_text_color_light</item>
+        <item name="codeTextColor">@color/markdown_code_text_color_light</item>
+        <item name="codeBackgroundColor">@color/markdown_code_background_color_light</item>
+        <item name="linkColor">@color/markdown_link_color_light</item>
+        <item name="underlineColor">@color/markdown_underline_color_light</item>
+    </style>
+
+</resources>
