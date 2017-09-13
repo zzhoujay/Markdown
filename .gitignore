@@ -231,3 +231,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 publish.sh
+
+.idea/
