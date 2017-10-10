@@ -90,8 +90,6 @@ public class LongPressLinkMovementMethod extends LinkMovementMethod {
             ClickableSpan[] clickableLinks = buffer.getSpans(off, off, ClickableSpan.class);
             LongPressClickableSpan[] longPressClickableLinks = buffer.getSpans(off, off, LongPressClickableSpan.class);
 
-            Log.d("QAQ", clickableLinks.length + " " + event.toString());
-
             switch (action) {
                 case MotionEvent.ACTION_UP:
                     if (clickableLinks.length != 0) {

@@ -34,6 +34,18 @@ textView.post(new Runnable() {
 }
 ```
 
+### 自定义样式
+
+在可以你的主题里加入 `markdownStyle` 来自定义样式，如果没有指定样式会使用自带的亮色主题。
+
+例子：
+```
+<style name="你的主题">
+    <!--<item name="markdownStyle">@style/Markdown</item>--> <!-- 暗色主题 -->
+	<item name="markdownStyle">@style/Markdown.Light</item> <!-- 亮色主题 -->
+</style>
+```
+
 ### 在RichText中使用
 
 [RichText](https://github.com/zzhoujay/RichText) 包含了一些对图片和其它东西的处理，使用更简单

@@ -68,18 +68,26 @@ public class StyleBuilderImpl implements StyleBuilder {
         TypedArray a = context.obtainStyledAttributes(null, R.styleable.MarkdownTheme, R.attr.markdownStyle, 0);
         final boolean failed = !a.hasValue(0);
         if (failed) {
-            a.recycle();
-            throw new IllegalArgumentException("You need to add markdownStyle to your theme.");
-        }
+            Log.w("Markdown", "Missing markdownStyle in your theme, using hardcoded color.");
 
-        h1_text_color = a.getColor(R.styleable.MarkdownTheme_h1TextColor, 0);
-        h6_text_color = a.getColor(R.styleable.MarkdownTheme_h6TextColor, 0);
-        quota_color = a.getColor(R.styleable.MarkdownTheme_quotaColor, 0);
-        quota_text_color = a.getColor(R.styleable.MarkdownTheme_quotaTextColor, 0);
-        code_text_color = a.getColor(R.styleable.MarkdownTheme_codeTextColor, 0);
-        code_background_color = a.getColor(R.styleable.MarkdownTheme_codeBackgroundColor, 0);
-        link_color = a.getColor(R.styleable.MarkdownTheme_linkColor, 0);
-        h_under_line_color = a.getColor(R.styleable.MarkdownTheme_underlineColor, 0);
+            h1_text_color = 0xdf000000;
+            h6_text_color = 0x8a000000;
+            quota_color = 0x4037474f;
+            quota_text_color = 0x61000000;
+            code_text_color = 0xd8000000;
+            code_background_color = 0x0c37474f;
+            link_color = 0xdc3e7bc9;
+            h_under_line_color = 0x1837474f;
+        } else {
+            h1_text_color = a.getColor(R.styleable.MarkdownTheme_h1TextColor, 0);
+            h6_text_color = a.getColor(R.styleable.MarkdownTheme_h6TextColor, 0);
+            quota_color = a.getColor(R.styleable.MarkdownTheme_quotaColor, 0);
+            quota_text_color = a.getColor(R.styleable.MarkdownTheme_quotaTextColor, 0);
+            code_text_color = a.getColor(R.styleable.MarkdownTheme_codeTextColor, 0);
+            code_background_color = a.getColor(R.styleable.MarkdownTheme_codeBackgroundColor, 0);
+            link_color = a.getColor(R.styleable.MarkdownTheme_linkColor, 0);
+            h_under_line_color = a.getColor(R.styleable.MarkdownTheme_underlineColor, 0);
+        }
 
         a.recycle();
     }
